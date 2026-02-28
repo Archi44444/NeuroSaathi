@@ -202,11 +202,26 @@ export function Sidebar({ role, page, setPage, setView, onLogout, isMobile = fal
   const [assessmentsOpen, setAssessmentsOpen] = useState(() => page === "assessments" || userTests.includes(page));
 
   useEffect(() => {
+    let alive = true;
+    let iv = null;
+    let refreshUnread = () => {};
+
     import("../services/api").then(({ getUnreadCount }) => {
-      getUnreadCount().then(n => setUnread(n || 0)).catch(() => {});
-      const iv = setInterval(() => getUnreadCount().then(n => setUnread(n || 0)).catch(() => {}), 8000);
-      return () => clearInterval(iv);
+      refreshUnread = () => {
+        getUnreadCount().then(n => {
+          if (alive) setUnread(n || 0);
+        }).catch(() => {});
+      };
+      refreshUnread();
+      iv = setInterval(refreshUnread, 8000);
+      window.addEventListener("neuroaid:messages-read", refreshUnread);
     });
+
+    return () => {
+      alive = false;
+      if (iv) clearInterval(iv);
+      window.removeEventListener("neuroaid:messages-read", refreshUnread);
+    };
   }, []);
 
   useEffect(() => {

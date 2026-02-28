@@ -88,6 +88,8 @@ def send_message(body: dict, authorization: str = Header(...)):
         "recipient_id": recipient_id,
         "text":         text,
         "timestamp":    datetime.utcnow().isoformat(),
+        # Track read state per-user. Sender has implicitly read it.
+        "read_by":      [user["id"]],
         "deleted_by":   [],
     }
     msgs.append(msg)
@@ -102,7 +104,9 @@ def unread_count(authorization: str = Header(...)):
     uid   = user["id"]
     msgs  = _load_msgs()
     count = sum(1 for m in msgs
-                if m["recipient_id"] == uid and uid not in m.get("deleted_by", []))
+                if m["recipient_id"] == uid
+                and uid not in m.get("deleted_by", [])
+                and uid not in m.get("read_by", []))
     return {"count": count}
 
 
@@ -169,6 +173,17 @@ def get_messages(other_user_id: str, authorization: str = Header(...)):
     user = _auth(authorization)
     uid  = user["id"]
     msgs = _load_msgs()
+    changed = False
+    # Mark all incoming messages from this conversation partner as read.
+    for m in msgs:
+        if (m["sender_id"] == other_user_id and m["recipient_id"] == uid):
+            rb = m.setdefault("read_by", [])
+            if uid not in rb:
+                rb.append(uid)
+                changed = True
+    if changed:
+        _save_msgs(msgs)
+
     conv = [
         m for m in msgs
         if ((m["sender_id"] == uid    and m["recipient_id"] == other_user_id) or

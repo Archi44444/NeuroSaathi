@@ -70,6 +70,8 @@ export default function MessagesPage() {
     try {
       const msgs = await getMessages(otherId);
       setMessages(msgs || []);
+      // Notify sidebar to refresh unread badge immediately after chat is opened/read.
+      window.dispatchEvent(new Event("neuroaid:messages-read"));
     } catch (e) {}
   }
 
