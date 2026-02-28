@@ -554,10 +554,10 @@ export default function LandingPage({ setView }) {
             <div style={{ position:"absolute",top:0,left:"15%",right:"15%",height:1,background:`linear-gradient(90deg,transparent,${C.lime}44,transparent)` }} />
             <div style={{ maxWidth:1000,margin:"0 auto",display:"flex",justifyContent:"space-around",gap:24,flexWrap:"wrap" }}>
               {[
-                {val:500,suffix:"+",label:"Patients Screened"},
-                {val:98, suffix:"%",label:"Accuracy Rate"},
+                {val:30, suffix:" sec",label:"Instant Risk Report"},
+                {val:3, suffix:"",label:"Risk levels (Low | Moderate | High)"},
                 {val:8,  suffix:" min",label:"Avg Assessment Time"},
-                {val:6,  suffix:"",label:"Cognitive Tests"},
+                {val:5,  suffix:"",label:"Cognitive Tests"},
               ].map(s=>(
                 <div key={s.label} style={{ textAlign:"center" }}>
                   <div style={{ fontWeight:900,fontSize:52,color:C.lime,lineHeight:1,letterSpacing:"-2px" }}>
@@ -667,7 +667,7 @@ export default function LandingPage({ setView }) {
                         Our Services
                       </div>
                       <h2 style={{ fontFamily:"'DM Sans',sans-serif",fontWeight:900,fontSize:"clamp(24px,2.8vw,42px)",letterSpacing:"-1.5px",color:C.white,lineHeight:1.1,margin:0 }}>
-                        6 cognitive tests.<br/>
+                        5 cognitive tests.<br/>
                         <span style={{ color:C.dim,fontWeight:400,fontSize:"0.75em" }}>One complete picture.</span>
                       </h2>
                     </div>
@@ -680,7 +680,7 @@ export default function LandingPage({ setView }) {
                       { icon:"⚡",title:"Reaction Time",     desc:"Attention via response drift, misses & speed across 30 targets.", accent:"#f59e0b" },
                       { icon:"🎨",title:"Stroop Test",       desc:"Color-word interference — gold-standard executive function.",     accent:"#a78bfa" },
                       { icon:"🥁",title:"Motor Tap",         desc:"10-second tapping measures rhythmic motor control.",               accent:"#fb923c" },
-                      { icon:"📊",title:"Risk Dashboard",    desc:"Unified Alzheimer's, Dementia & Parkinson's risk scores.",        accent:"#4ade80" },
+                      
                     ].map(s=><SvcCard key={s.title} {...s} />)}
                   </div>
                 </div>
