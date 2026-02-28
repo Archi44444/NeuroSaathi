@@ -34,7 +34,7 @@ export default function MemoryTest({ setPage }) {
   const { setMemoryData } = useAssessment();
   const [pool,     setPool]     = useState(null);   // { targets, distractors }
   const [allWords, setAllWords] = useState([]);
-  const [phase,    setPhase]    = useState("loading"); // loading|study|distract|recall|result
+  const [phase,    setPhase]    = useState("loading"); // loading|ready|study|distract|recall|result
   const [selected, setSelected] = useState([]);
   const [timer,    setTimer]    = useState(30);
 
@@ -62,7 +62,7 @@ export default function MemoryTest({ setPage }) {
       const shuffled = [...chosen.targets, ...chosen.distractors].sort(() => Math.random() - 0.5);
       setPool(chosen);
       setAllWords(shuffled);
-      setPhase("study");
+      setPhase("ready");
     }
     init();
   }, []);
@@ -118,6 +118,14 @@ export default function MemoryTest({ setPage }) {
     setPhase("result");
   }
 
+  function startMemoryTest() {
+    setSelected([]);
+    setTimer(30);
+    firstClickRef.current = null;
+    recallStartRef.current = null;
+    setPhase("study");
+  }
+
   const LIME = "#C8F135";
   if (!pool || phase === "loading") return (
     <div style={{ display:"flex", alignItems:"center", justifyContent:"center", minHeight:"60vh", color:"#555", fontSize:14 }}>
@@ -130,6 +138,17 @@ export default function MemoryTest({ setPage }) {
       <button onClick={() => setPage("assessments")} style={{ background:"none", border:"none", color:T.creamFaint, cursor:"pointer", fontFamily:"'DM Sans',sans-serif", fontSize:13, marginBottom:24 }}>← Back</button>
       <h1 style={{ fontFamily:"'Instrument Serif',serif", fontSize:36, color:T.cream, letterSpacing:-1, marginBottom:6 }}>Memory Test</h1>
       <p style={{ color:T.creamFaint, fontSize:14, marginBottom:32 }}>Memorise the words, then recall them after a short distraction task.</p>
+
+      {phase === "ready" && (
+        <DarkCard style={{ padding:32, textAlign:"center" }} hover={false}>
+          <div style={{ fontSize:48, marginBottom:16 }}>🧠</div>
+          <h2 style={{ color:T.cream, fontFamily:"'Instrument Serif',serif", fontSize:28, marginBottom:12 }}>Ready to start?</h2>
+          <p style={{ color:T.creamFaint, fontSize:14, marginBottom:24 }}>
+            You will get 30 seconds to study 10 words, then a short distraction task, then recall.
+          </p>
+          <Btn onClick={startMemoryTest}>Start Memory Test →</Btn>
+        </DarkCard>
+      )}
 
       {phase === "study" && (
         <DarkCard style={{ padding:32 }} hover={false}>
