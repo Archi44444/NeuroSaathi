@@ -6,9 +6,17 @@ import { CATEGORY_STYLE, GAMES } from "../utils/gamesCatalog";
 const LIME = "#C8F135";
 
 function resultTone(score) {
-  if (score >= 80) return "#86efac";
-  if (score >= 60) return "#facc15";
+  if (score >= 72) return "#86efac";
+  if (score >= 52) return "#facc15";
   return "#f87171";
+}
+
+function pickScore(latest) {
+  if (!latest) return null;
+  if (latest.cstScore != null) return latest.cstScore;
+  if (latest.score != null) return latest.score;
+  if (latest.correct != null && latest.total) return Math.round((latest.correct / latest.total) * 100);
+  return null;
 }
 
 export default function GameResults({ setPage }) {
@@ -67,6 +75,10 @@ export default function GameResults({ setPage }) {
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           {rows.map(({ game, attempts, latest }) => {
             const tone = CATEGORY_STYLE[game.category] || { color: LIME, bg: "rgba(200,241,53,0.10)" };
+            const score = pickScore(latest);
+            const accuracy = latest?.accuracyPct ?? (
+              latest?.correct != null && latest?.total ? Math.round((latest.correct / latest.total) * 100) : null
+            );
             return (
               <DarkCard key={game.id} style={{ padding: 16 }} hover={false}>
                 <div style={{ display: "flex", justifyContent: "space-between", gap: 16, alignItems: "center" }}>
@@ -135,14 +147,30 @@ export default function GameResults({ setPage }) {
 
                   {latest ? (
                     <div style={{ textAlign: "right", minWidth: 130 }}>
-                      <div style={{ color: resultTone(latest.score), fontWeight: 800, fontSize: 20 }}>
-                        {latest.score}%
+                      <div style={{ color: resultTone(score ?? 0), fontWeight: 800, fontSize: 20 }}>
+                        {score ?? 0}%
                       </div>
                       <div style={{ color: T.creamFaint, fontSize: 11 }}>
                         {latest.correct}/{latest.total} correct
                       </div>
                       <div style={{ color: T.creamFaint, fontSize: 11 }}>
-                        {latest.durationSec}s
+                        {latest.durationSec}s total
+                      </div>
+                      <div style={{ color: T.creamFaint, fontSize: 11 }}>
+                        Accuracy: {accuracy ?? 0}%
+                      </div>
+                      {latest.meanRtMs != null && (
+                        <div style={{ color: T.creamFaint, fontSize: 11 }}>
+                          Avg response: {latest.meanRtMs}ms
+                        </div>
+                      )}
+                      {latest.consistencyScore != null && (
+                        <div style={{ color: T.creamFaint, fontSize: 11 }}>
+                          Consistency: {latest.consistencyScore}%
+                        </div>
+                      )}
+                      <div style={{ color: "#777", fontSize: 10, marginTop: 2 }}>
+                        CST weighted score
                       </div>
                     </div>
                   ) : (
