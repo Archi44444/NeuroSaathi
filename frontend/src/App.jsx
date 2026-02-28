@@ -2,6 +2,7 @@ import { useState } from "react";
 import { injectStyles } from "./utils/theme";
 import { Shell } from "./components/RiskDashboard";
 import { AssessmentProvider } from "./context/AssessmentContext";
+import { GamesProvider } from "./context/GamesContext";
 import { getUser, isLoggedIn, logout } from "./services/api";
 
 import LandingPage     from "./pages/LandingPage";
@@ -12,6 +13,9 @@ import UserDashboard   from "./pages/UserDashboard";
 import AssessmentHub   from "./pages/AssessmentHub";
 import ResultsPage     from "./pages/ResultsPage";
 import ProgressPage    from "./pages/ProgressPage";
+import GamesHub        from "./pages/GamesHub";
+import GamePlay        from "./pages/GamePlay";
+import GameResults     from "./pages/GameResults";
 import DoctorDashboard from "./pages/DoctorDashboard";
 import MessagesPage    from "./pages/MessagesPage";
 import DoctorHome      from "./pages/DoctorHome";
@@ -24,6 +28,7 @@ import MemoryTest   from "./components/MemoryTest";
 import ReactionTest from "./components/ReactionTest";
 import StroopTest   from "./components/StroopTest";
 import TapTest      from "./components/TapTest";
+import { GAME_IDS } from "./utils/gamesCatalog";
 
 injectStyles();
 
@@ -132,6 +137,8 @@ export default function App() {
     switch (p) {
       case "dashboard":   return <UserDashboard   setPage={setPage} />;
       case "assessments": return <AssessmentHub   setPage={setPage} />;
+      case "games":       return <GamesHub        setPage={setPage} />;
+      case "game-results":return <GameResults     setPage={setPage} />;
       case "speech":      return <SpeechTest      setPage={setPage} />;
       case "memory":      return <MemoryTest      setPage={setPage} />;
       case "reaction":    return <ReactionTest    setPage={setPage} />;
@@ -141,16 +148,20 @@ export default function App() {
       case "progress":    return <ProgressPage    setPage={setPage} />;
       case "messages":    return <MessagesPage />;
       case "doctors":     return <DoctorSelection setPage={setPage} />;
-      default:            return <UserDashboard   setPage={setPage} />;
+      default:
+        if (GAME_IDS.includes(p)) return <GamePlay setPage={setPage} gameId={p} />;
+        return <UserDashboard setPage={setPage} />;
     }
   }
 
   return (
     <AssessmentProvider>
-      <Shell role={role} page={page} setPage={setPage} setView={setView}
-        currentUser={currentUser} onLogout={handleLogout}>
-        {renderPage(page)}
-      </Shell>
+      <GamesProvider>
+        <Shell role={role} page={page} setPage={setPage} setView={setView}
+          currentUser={currentUser} onLogout={handleLogout}>
+          {renderPage(page)}
+        </Shell>
+      </GamesProvider>
     </AssessmentProvider>
   );
 }
