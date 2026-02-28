@@ -143,9 +143,11 @@ export default function SpeechTest({ setPage }) {
   const [transcript,    setTranscript]    = useState("");
   const [interimText,   setInterimText]   = useState("");
   const [usingSpeechAPI,setUsingSpeechAPI]= useState(false);
+  const usingSpeechAPIRef = useRef(false); // ref mirror for use inside async stopRec
   const [pauseRatio,    setPauseRatio]    = useState(0);
   const [wordHighlight, setWordHighlight] = useState(null); // {passageWords, matched}
   const [liveWpm,       setLiveWpm]       = useState(0);
+  const restartCountRef = useRef(0); // ref mirror to avoid stale closure in stopRec
 
   // Refs
   const recognitionRef  = useRef(null);
@@ -245,6 +247,7 @@ export default function SpeechTest({ setPage }) {
   // ── Speech Recognition (Chrome/Edge) ─────────────────────────────────────
   function startWithSpeechAPI(stream) {
     setUsingSpeechAPI(true);
+    usingSpeechAPIRef.current = true;
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     const rec = new SR();
     rec.continuous     = true;
@@ -295,6 +298,7 @@ export default function SpeechTest({ setPage }) {
   // ── MediaRecorder fallback ────────────────────────────────────────────────
   function startWithMediaRecorder(stream) {
     setUsingSpeechAPI(false);
+    usingSpeechAPIRef.current = false;
     const mimeType = ["audio/webm;codecs=opus","audio/webm","audio/ogg","audio/mp4"]
       .find(t => MediaRecorder.isTypeSupported(t)) || "";
     const mr = new MediaRecorder(stream, mimeType ? { mimeType } : {});
@@ -365,33 +369,42 @@ export default function SpeechTest({ setPage }) {
       setInterimText("");
       setWordHighlight(null);
       setLiveWpm(0);
-      setRestart(r => r + 1);
+      setRestart(r => { restartCountRef.current = r + 1; return r + 1; });
       return;
     }
 
     setPhase("processing");
     await new Promise(r => setTimeout(r, 400));
 
-    const totalSec    = Math.max(timer, 1);
+    // Use startTs ref (not stale timer state) for accurate elapsed time
+    const totalSec    = Math.max(
+      startTs.current ? Math.round((Date.now() - startTs.current) / 1000) : 1,
+      1
+    );
     const fullText    = finalTranscript.current.trim();
     const passageWC   = tokenize(passage).length;
+    // Use refs (not stale state) for flags set before this async call
+    const usingAPI    = usingSpeechAPIRef.current;
 
     // ── Compute all accurate metrics ──────────────────────────────────────
 
     // WPM: from real transcribed word count
     const transcribedWC = tokenize(fullText).length;
+    // If Speech API was active but produced no transcript (mic issue, browser quirk),
+    // fall back to passage-based estimate so we don't send wpm=0 to the backend.
+    const gotTranscript = usingAPI && transcribedWC > 3;
     // Guard: require at least 5s of audio to avoid absurd WPM from accidental clicks
     const minRecordSec = 5;
     const effectiveSec = Math.max(totalSec, minRecordSec);
-    const wpm           = usingSpeechAPI
+    const wpm           = gotTranscript
       ? Math.round((transcribedWC / effectiveSec) * 60)
       : Math.round((passageWC    / effectiveSec) * 60);  // fallback: assume passage read
 
     // Word accuracy (0–100): how many passage words appeared in transcript
-    const accuracy = usingSpeechAPI ? wordAccuracy(fullText, passage) : null;
+    const accuracy = gotTranscript ? wordAccuracy(fullText, passage) : null;
 
     // Completion ratio: what fraction of passage was spoken
-    const compRatio = usingSpeechAPI
+    const compRatio = gotTranscript
       ? Math.min(transcribedWC / passageWC, 1.0)
       : Math.min(effectiveSec / 35, 1.0);  // 35s ≈ average read time
 
@@ -401,14 +414,14 @@ export default function SpeechTest({ setPage }) {
       : 0.15;
 
     // Speed variability from per-sentence WPMs
-    const segWpms = usingSpeechAPI
+    const segWpms = gotTranscript
       ? segmentWpms(fullText, totalSec)
       : [wpm, wpm * 0.9, wpm * 1.1]; // approximate without transcription
     const speedVar = computeSpeedVariability(segWpms);
 
     // Fillers and repetitions (only with transcription)
-    const fillerCount = usingSpeechAPI ? countFillers(fullText) : 0;
-    const repCount    = usingSpeechAPI ? countRepetitions(fullText) : 0;
+    const fillerCount = gotTranscript ? countFillers(fullText) : 0;
+    const repCount    = gotTranscript ? countRepetitions(fullText) : 0;
 
     // Start delay (seconds from button press to first speech)
     const startDelay = firstSpeechTs.current
@@ -439,7 +452,7 @@ export default function SpeechTest({ setPage }) {
       speech_speed_variability: speedVar,
       pause_ratio:              parseFloat(pauseRatioFinal.toFixed(3)),
       completion_ratio:         parseFloat(compRatio.toFixed(3)),
-      restart_count:            restartCount,
+      restart_count:            restartCountRef.current,
       speech_start_delay:       startDelay,
     };
 
@@ -447,7 +460,7 @@ export default function SpeechTest({ setPage }) {
     setResult({
       wpm, speedVar, compRatio, startDelay, pauseRatio: pauseRatioFinal,
       accuracy, fillerCount, repCount, totalSec,
-      transcribedWC, usedSpeechAPI: usingSpeechAPI,
+      transcribedWC, usedSpeechAPI: gotTranscript,
     });
     setPhase("done");
   }
