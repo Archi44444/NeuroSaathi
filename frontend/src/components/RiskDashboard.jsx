@@ -198,32 +198,45 @@ export function Sidebar({ role, page, setPage, setView, onLogout, isMobile = fal
   const displayName = storedUser?.full_name || (role === "doctor" ? "Doctor" : "Patient");
   const initials = displayName.split(" ").map(w => w[0]).join("").slice(0,2).toUpperCase();
   const [unread, setUnread] = useState(0);
+  const userTests = ["speech", "memory", "reaction", "stroop", "tap"];
+  const [assessmentsOpen, setAssessmentsOpen] = useState(() => page === "assessments" || userTests.includes(page));
+
   useEffect(() => {
     import("../services/api").then(({ getUnreadCount }) => {
       getUnreadCount().then(n => setUnread(n || 0)).catch(() => {});
-      const iv = setInterval(() => getUnreadCount().then(n => setUnread(n||0)).catch(()=>{}), 8000);
+      const iv = setInterval(() => getUnreadCount().then(n => setUnread(n || 0)).catch(() => {}), 8000);
       return () => clearInterval(iv);
     });
   }, []);
 
+  useEffect(() => {
+    if (role === "doctor") return;
+    if (page === "assessments" || userTests.includes(page)) setAssessmentsOpen(true);
+  }, [page, role]);
+
   const uNav = [
-    { id:"dashboard",   label:"Overview",      icon:"◈" },
-    { id:"assessments", label:"Assessments",   icon:"◉" },
-    { id:"speech",      label:"Speech Test",   icon:"◎" },
-    { id:"memory",      label:"Memory Test",   icon:"⬡" },
-    { id:"reaction",    label:"Reaction Test", icon:"◷" },
-    { id:"stroop",      label:"Stroop Test",   icon:"◐" },
-    { id:"tap",         label:"Motor Tap",     icon:"⬤" },
-    { id:"results",     label:"Results",       icon:"◆" },
-    { id:"progress",    label:"Progress",      icon:"↗" },
-    { id:"messages",    label:"Messages",      icon:"✉", badge: unread },
+    { id: "dashboard",   label: "Overview",    icon: "◆" },
+    { id: "assessments", label: "Assessments", icon: "◉" },
+    { id: "results",     label: "Results",     icon: "◆" },
+    { id: "progress",    label: "Progress",    icon: "↗" },
+    { id: "messages",    label: "Messages",    icon: "✉", badge: unread },
   ];
+
+  const userAssessmentTests = [
+    { id: "speech",   label: "Speech Test",   icon: "◎" },
+    { id: "memory",   label: "Memory Test",   icon: "⬡" },
+    { id: "reaction", label: "Reaction Test", icon: "◷" },
+    { id: "stroop",   label: "Stroop Test",   icon: "◐" },
+    { id: "tap",      label: "Motor Tap",     icon: "●" },
+  ];
+
   const dNav = [
-    { id:"doctor-dashboard", label:"Dashboard", icon:"◈" },
-    { id:"patients",         label:"Patients",  icon:"◉" },
-    { id:"messages",         label:"Messages",  icon:"✉", badge: unread },
-    { id:"content",          label:"Content",   icon:"✎" },
+    { id: "doctor-dashboard", label: "Dashboard", icon: "◆" },
+    { id: "patients",         label: "Patients",  icon: "◉" },
+    { id: "messages",         label: "Messages",  icon: "✉", badge: unread },
+    { id: "content",          label: "Content",   icon: "✎" },
   ];
+
   const nav = role === "doctor" ? dNav : uNav;
 
   function handleNavClick(nextPage) {
@@ -257,10 +270,8 @@ export function Sidebar({ role, page, setPage, setView, onLogout, isMobile = fal
       backgroundSize:"60px 60px",
       overflow:"hidden",
     }}>
-      {/* Lime glow bottom of sidebar */}
       <div style={{ position:"absolute", bottom:0, left:0, right:0, height:"35%", background:`radial-gradient(ellipse 120% 60% at 50% 120%, ${LIME}1A 0%, transparent 70%)`, pointerEvents:"none" }} />
 
-      {/* Logo — clicking refreshes dashboard, does NOT log out */}
       <div style={{ padding:"28px 22px 20px", borderBottom:"1px solid rgba(255,255,255,0.06)", cursor:"pointer", position:"relative", zIndex:2 }}
         onClick={handleLogoClick}
         title="Go to dashboard">
@@ -270,21 +281,77 @@ export function Sidebar({ role, page, setPage, setView, onLogout, isMobile = fal
         </div>
       </div>
 
-      {/* Nav */}
       <nav style={{ flex:1, padding:"14px 10px", display:"flex", flexDirection:"column", gap:2, position:"relative", zIndex:2 }}>
         {nav.map(item => {
-          const a = page === item.id;
+          const isAssessmentsParent = role !== "doctor" && item.id === "assessments";
+          const isActive = isAssessmentsParent
+            ? (page === "assessments" || userTests.includes(page))
+            : page === item.id;
           const hasBadge = item.badge && item.badge > 0;
+
+          if (isAssessmentsParent) {
+            return (
+              <div key={item.id}>
+                <button
+                  onClick={() => {
+                    handleNavClick("assessments");
+                    setAssessmentsOpen(v => !v);
+                  }}
+                  style={{
+                    width:"100%",
+                    display:"flex", alignItems:"center", gap:10, padding:"10px 14px",
+                    borderRadius:12, border:isActive ? `1px solid ${LIME}33` : "1px solid transparent",
+                    background:isActive ? `rgba(200,241,53,0.10)` : "transparent",
+                    color:isActive ? LIME : "#555",
+                    fontWeight:isActive ? 700 : 400, fontSize:13.5, cursor:"pointer",
+                    textAlign:"left", transition:"all 0.15s",
+                    fontFamily:"'DM Sans',sans-serif",
+                    boxShadow:isActive ? `0 0 20px ${LIME}12` : "none",
+                  }}
+                >
+                  <span style={{ fontSize:14, width:18 }}>{item.icon}</span>
+                  <span style={{ flex:1 }}>{item.label}</span>
+                  <span style={{ fontSize:10, opacity:0.75, transform: assessmentsOpen ? "rotate(180deg)" : "rotate(0deg)", transition:"transform 0.2s" }}>▾</span>
+                </button>
+                {assessmentsOpen && (
+                  <div style={{ marginTop:2, marginBottom:4, paddingLeft:18, display:"flex", flexDirection:"column", gap:2 }}>
+                    {userAssessmentTests.map(test => {
+                      const testActive = page === test.id;
+                      return (
+                        <button
+                          key={test.id}
+                          onClick={() => handleNavClick(test.id)}
+                          style={{
+                            display:"flex", alignItems:"center", gap:10, padding:"9px 12px",
+                            borderRadius:10, border:testActive ? `1px solid ${LIME}22` : "1px solid transparent",
+                            background:testActive ? `rgba(200,241,53,0.08)` : "transparent",
+                            color:testActive ? LIME : "#555",
+                            fontWeight:testActive ? 700 : 400, fontSize:13, cursor:"pointer",
+                            textAlign:"left", transition:"all 0.15s",
+                            fontFamily:"'DM Sans',sans-serif",
+                          }}
+                        >
+                          <span style={{ fontSize:13, width:18 }}>{test.icon}</span>
+                          <span style={{ flex:1 }}>{test.label}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          }
+
           return (
             <button key={item.id} onClick={() => handleNavClick(item.id)} style={{
               display:"flex", alignItems:"center", gap:10, padding:"10px 14px",
-              borderRadius:12, border:a ? `1px solid ${LIME}33` : "1px solid transparent",
-              background:a ? `rgba(200,241,53,0.10)` : "transparent",
-              color:a ? LIME : "#555",
-              fontWeight:a ? 700 : 400, fontSize:13.5, cursor:"pointer",
+              borderRadius:12, border:isActive ? `1px solid ${LIME}33` : "1px solid transparent",
+              background:isActive ? `rgba(200,241,53,0.10)` : "transparent",
+              color:isActive ? LIME : "#555",
+              fontWeight:isActive ? 700 : 400, fontSize:13.5, cursor:"pointer",
               textAlign:"left", transition:"all 0.15s",
               fontFamily:"'DM Sans',sans-serif",
-              boxShadow:a ? `0 0 20px ${LIME}12` : "none",
+              boxShadow:isActive ? `0 0 20px ${LIME}12` : "none",
             }}>
               <span style={{ fontSize:14, width:18 }}>{item.icon}</span>
               <span style={{ flex:1 }}>{item.label}</span>
@@ -313,13 +380,12 @@ export function Sidebar({ role, page, setPage, setView, onLogout, isMobile = fal
         <button onClick={handleSignOut} style={{ background:"transparent", border:"none", color:"#444", fontSize:13, cursor:"pointer", fontFamily:"'DM Sans',sans-serif", transition:"color 0.2s" }}
           onMouseEnter={e => e.target.style.color = LIME}
           onMouseLeave={e => e.target.style.color = "#444"}
-        >← Sign out</button>
+        >{"<-"} Sign out</button>
       </div>
     </div>
   );
 }
 
-// ── Ghost text watermark ──────────────────────────────────────────────────────
 function GhostText({ text, style = {} }) {
   return (
     <div style={{
@@ -462,3 +528,4 @@ export function Shell({ role, page, setPage, setView, children, onLogout }) {
     </div>
   );
 }
+
