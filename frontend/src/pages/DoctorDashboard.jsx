@@ -81,7 +81,7 @@ export default function DoctorDashboard({ setPage, setSelectedPatient }) {
       </DarkCard>
 
       {/* Patient table */}
-      <DarkCard style={{ padding: 0, overflow: "hidden" }} hover={false}>
+      <DarkCard style={{ padding: 0 }} hover={false}>
         {loading ? (
           <div style={{ padding: 48, textAlign: "center", color: T.creamFaint, fontSize: 14 }}>Loading patients…</div>
         ) : error ? (
@@ -93,11 +93,12 @@ export default function DoctorDashboard({ setPage, setSelectedPatient }) {
               : "No patients match your filter."}
           </div>
         ) : (
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", minWidth: 1100, borderCollapse: "collapse" }}>
             <thead>
               <tr style={{ borderBottom: `1px solid ${T.cardBorder}` }}>
                 {["Patient", "Age", "Overall Risk", "Mem. Deviation", "Exec. Drift", "Motor Anomaly", "Sessions", "Last Active", ""].map(h => (
-                  <th key={h} style={{ padding: "14px 16px", textAlign: "left", fontSize: 10, fontWeight: 600, color: T.creamFaint, letterSpacing: 1, textTransform: "uppercase", whiteSpace: "nowrap" }}>{h}</th>
+                  <th key={h} style={{ padding: "14px 16px", textAlign: h === "" ? "right" : "left", fontSize: 10, fontWeight: 600, color: T.creamFaint, letterSpacing: 1, textTransform: "uppercase", whiteSpace: "nowrap" }}>{h}</th>
                 ))}
               </tr>
             </thead>
@@ -147,7 +148,7 @@ export default function DoctorDashboard({ setPage, setSelectedPatient }) {
                     </td>
                     <td style={{ padding: "14px 16px", color: T.creamFaint, fontSize: 13 }}>{p.sessionCount ?? 0}</td>
                     <td style={{ padding: "14px 16px", color: T.creamFaint, fontSize: 13 }}>{lastActive}</td>
-                    <td style={{ padding: "14px 16px" }}>
+                    <td style={{ padding: "14px 16px", textAlign: "right", whiteSpace: "nowrap" }}>
                       <Btn small variant="ghost" onClick={() => { setSelectedPatient(p); setPage("patient-detail"); }}>View →</Btn>
                     </td>
                   </tr>
@@ -155,6 +156,7 @@ export default function DoctorDashboard({ setPage, setSelectedPatient }) {
               })}
             </tbody>
           </table>
+          </div>
         )}
       </DarkCard>
     </div>
