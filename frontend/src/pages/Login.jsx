@@ -115,7 +115,7 @@ export default function LoginPage({ setView, setRole, setCurrentUser, onAuthSucc
 
         {/* Logo */}
         <div style={{ textAlign: "center", marginBottom: 28 }}>
-          <div style={{ width: 48, height: 48, borderRadius: 14, background: "linear-gradient(135deg,rgba(232,64,64,0.9),rgba(200,36,36,0.95))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, margin: "0 auto 14px", boxShadow: `0 0 32px rgba(232,64,64,0.45), inset 0 1px 0 rgba(255,255,255,0.16)` }}>⬡</div>
+          <div style={{ width: 48, height: 48, borderRadius: 14, background: "#C8F135",color:"#080808" ,display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, margin: "0 auto 14px", boxShadow: `0 0 32px rgba(232,64,64,0.45), inset 0 1px 0 rgba(255,255,255,0.16)` }}>⬡</div>
           <div style={{ fontFamily: "'Instrument Serif',serif", fontSize: 26, color: T.cream }}>NeuroAid</div>
           <div style={{ color: T.creamFaint, fontSize: 13, marginTop: 4 }}>Cognitive AI Platform</div>
         </div>
@@ -125,7 +125,7 @@ export default function LoginPage({ setView, setRole, setCurrentUser, onAuthSucc
           {/* Role switcher */}
           <div style={{ display: "flex", background: "rgba(255,255,255,0.04)", borderRadius: 50, padding: 4, marginBottom: 24, border: "1px solid rgba(255,255,255,0.08)" }}>
             {[{ key: "user", label: "👤 Patient" }, { key: "doctor", label: "🩺 Doctor" }].map(r => (
-              <button key={r.key} onClick={() => switchMode(r.key)} style={{ flex: 1, padding: "9px 0", borderRadius: 50, border: "none", background: mode === r.key ? "linear-gradient(135deg,rgba(232,64,64,0.88),rgba(200,36,36,0.95))" : "transparent", color: mode === r.key ? "#fff" : T.creamFaint, fontWeight: 600, fontSize: 13, cursor: "pointer", fontFamily: "'DM Sans',sans-serif", transition: "all 0.2s" }}>
+              <button key={r.key} onClick={() => switchMode(r.key)} style={{ flex: 1, padding: "9px 0", borderRadius: 50, border: "none", background: mode === r.key ? "#C8F135" : "transparent", color: mode === r.key ? "#080808" : T.creamFaint, fontWeight: 600, fontSize: 13, cursor: "pointer", fontFamily: "'DM Sans',sans-serif", transition: "all 0.2s" }}>
                 {r.label}
               </button>
             ))}
@@ -162,7 +162,7 @@ export default function LoginPage({ setView, setRole, setCurrentUser, onAuthSucc
             {(!isDoctorRegister || step === 1) && tab === "register" && (
               <div>
                 <label style={labelStyle}>Full Name *</label>
-                <input placeholder="Dr. Jane Smith" value={fullName} onChange={e => setFullName(e.target.value)} className="glass-input" style={inputStyle} />
+                <input placeholder="Jane Smith" value={fullName} onChange={e => setFullName(e.target.value)} className="glass-input" style={inputStyle} />
               </div>
             )}
 
