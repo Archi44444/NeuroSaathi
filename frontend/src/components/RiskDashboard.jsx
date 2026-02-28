@@ -292,7 +292,7 @@ export function Sidebar({ role, page, setPage, setView, onLogout, isMobile = fal
         title="Go to dashboard">
         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
           <div style={{ width:32, height:32, borderRadius:9, background:`linear-gradient(135deg,${LIME},#9ABF28)`, display:"flex", alignItems:"center", justifyContent:"center", fontWeight:900, fontSize:14, color:"#080808", boxShadow:`0 0 16px ${LIME}44` }}>N</div>
-          <span style={{ fontFamily:"'DM Sans',sans-serif", fontWeight:900, fontSize:18, color:"#fff", letterSpacing:-0.5 }}>NeuroSaathi</span>
+          <span style={{ fontFamily:"'DM Sans',sans-serif", fontWeight:900, fontSize:18, color:"#fff", letterSpacing:-0.5 }}>MindSaathi</span>
         </div>
       </div>
 
@@ -543,5 +543,6 @@ export function Shell({ role, page, setPage, setView, children, onLogout }) {
     </div>
   );
 }
+
 
 

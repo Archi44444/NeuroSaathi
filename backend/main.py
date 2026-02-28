@@ -5,8 +5,8 @@ from routers import analyze, auth, messages, content, chat
 from utils.logger import log_info
 
 app = FastAPI(
-    title="NeuroSaathi API",
-    description="Backend for NeuroSaathi cognitive risk assessment",
+    title="MindSaathi API",
+    description="Backend for MindSaathi cognitive risk assessment",
     version="1.0.0",
 )
 
@@ -38,4 +38,5 @@ async def global_exception_handler(request: Request, exc: Exception):
 # ── Health check ──────────────────────────────────────────────────────────────
 @app.get("/health")
 def health():
-    return {"status": "ok", "service": "NeuroSaathi Backend"}
+    return {"status": "ok", "service": "MindSaathi Backend"}
+

@@ -1,5 +1,5 @@
 """
-analyze.py — NeuroSaathi V4
+analyze.py — MindSaathi V4
 Full pipeline: 18-feature extraction → 3-disease logistic models →
 V2 clinical layers → hybrid ML scoring → composite risk → risk_drivers →
 anomaly detection → JSON persistence.
@@ -271,4 +271,5 @@ def get_patient_results(patient_id: str, authorization: str = Header(...)):
     patient_results = results.get(patient_id, [])
     progress        = build_progress_summary(patient_results)
     return {"results": patient_results, "progress": progress}
+
 

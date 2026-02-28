@@ -1,4 +1,4 @@
-// Firebase configuration for NeuroSaathi
+// Firebase configuration for MindSaathi
 // Requires: npm install firebase
 // Values loaded from frontend/.env (VITE_ prefix required for Vite)
 
@@ -35,4 +35,5 @@ if (hasConfig) {
 
 export { auth, db };
 export default app;
+
 

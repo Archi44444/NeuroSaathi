@@ -1,7 +1,7 @@
-# 🧠 NeuroSaathi
-###  early neurodegenerative risk screening system that identifies cognitive and motor decline patterns before clinical diagnosis 
+# 🧠 MindSaathi
+### Early Cognitive Risk Assessment & Clinical Intelligence Platform  
 
-NeuroSaathi is a full-stack, early cognitive risk assessment system designed to detect early indicators of neurological conditions such as:
+MindSaathi is a full-stack, early cognitive risk assessment system designed to detect early indicators of neurological conditions such as:
 
 - Mild Cognitive Impairment (MCI)
 - Alzheimer’s Disease
@@ -236,7 +236,7 @@ Handled via Firebase:
 # 📁 Project Structure
 
 ```
-NeuroSaathi/
+MindSaathi/
 │
 ├── backend/
 │   ├── main.py
@@ -358,7 +358,7 @@ VITE_BACKEND_URL=
 
 # 🛡️ Safety & Compliance
 
-NeuroSaathi:
+MindSaathi:
 
 - Does NOT provide diagnosis
 - Does NOT prescribe treatment
@@ -396,7 +396,7 @@ NeuroSaathi:
 
 # 🎯 Vision
 
-NeuroSaathi aims to become:
+MindSaathi aims to become:
 
 > A scalable, ethical, AI-assisted early cognitive screening system  
 > bridging digital neuropsychology and modern machine intelligence.
@@ -411,7 +411,7 @@ See `frontend/LICENSE`
 
 # ⚠️ Disclaimer
 
-NeuroSaathi is an **educational and assistive tool only**.  
+MindSaathi is an **educational and assistive tool only**.  
 It is not a medical device and does not provide medical diagnosis.
 
 Users are strongly encouraged to consult licensed healthcare professionals for clinical decisions.
@@ -420,10 +420,11 @@ Users are strongly encouraged to consult licensed healthcare professionals for c
 
 # 🌟 Final Thought
 
-NeuroSaathi is not just a project.  
+MindSaathi is not just a project.  
 It is a demonstration of:
 
 - Core CS engineering
 - Applied ML reasoning
 - Ethical AI design
 - Healthcare-tech system architecture
+

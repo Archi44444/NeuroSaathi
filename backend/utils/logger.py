@@ -1,7 +1,7 @@
 """
 logger.py
 ─────────
-Lightweight logging helper for NeuroSaathi backend.
+Lightweight logging helper for MindSaathi backend.
 Drop-in replacement: swap print() for a proper logging framework later.
 """
 
@@ -40,4 +40,5 @@ def log_request(endpoint: str, payload: dict) -> None:
     """Pretty-print an incoming request for debugging."""
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     _logger.info(f"[{ts}] REQUEST → {endpoint} | payload keys: {list(payload.keys())}")
+
 

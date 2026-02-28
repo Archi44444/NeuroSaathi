@@ -1,5 +1,5 @@
 """
-ai_service.py — NeuroSaathi v3
+ai_service.py — MindSaathi v3
 18-feature pipeline with separate logistic-regression-style models for:
   - Alzheimer's disease
   - General Dementia
@@ -367,3 +367,4 @@ def build_feature_vector(speech_f, memory_f, reaction_f, executive_f, motor_f) -
         stroop_rt=executive_f.get("stroop_rt", 550),
         tap_interval_std=motor_f.get("tap_interval_std", 40),
     )
+

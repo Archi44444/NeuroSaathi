@@ -1,5 +1,5 @@
 """
-NeuroSaathi Backend - Chat/RAG Router
+MindSaathi Backend - Chat/RAG Router
 ====================================
 POST /api/chat — Educational chatbot backed by the local RAG pipeline.
 
@@ -56,4 +56,5 @@ async def chat(payload: ChatRequest):
         guardrail_triggered=result.get("guardrail_triggered", False),
         disclaimer=DISCLAIMER,
     )
+
 

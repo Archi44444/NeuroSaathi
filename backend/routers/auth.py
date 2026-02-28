@@ -1,5 +1,5 @@
 """
-auth.py — NeuroSaathi Authentication Router
+auth.py — MindSaathi Authentication Router
 Handles register, login, logout with local JSON file storage.
 Role-separated: patients cannot login to doctor panel and vice versa.
 """
@@ -489,4 +489,5 @@ def get_pending_requests(authorization: str = Header(...)):
     users    = _get_users()
     pending  = users[user["id"]].get("pending_requests", [])
     return {"pending_requests": pending}
+
 

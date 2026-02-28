@@ -33,7 +33,7 @@ export default function Home({ setView }) {
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 30, height: 30, borderRadius: 8, background: "linear-gradient(135deg,rgba(232,64,64,0.9),rgba(200,36,36,0.95))", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: `0 0 16px rgba(232,64,64,0.45), inset 0 1px 0 rgba(255,255,255,0.15)` }}>⬡</div>
-          <span style={{ fontFamily: "'Instrument Serif',serif", fontSize: 20, letterSpacing: -0.5 }}>NeuroSaathi</span>
+          <span style={{ fontFamily: "'Instrument Serif',serif", fontSize: 20, letterSpacing: -0.5 }}>MindSaathi</span>
         </div>
         <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
           {["Guides","Support"].map(l => (
@@ -194,7 +194,7 @@ export default function Home({ setView }) {
             </div>
             <DarkCard style={{ flex: 1, padding: 24 }} hover={false}>
               <div style={{ fontSize: 12, color: T.creamFaint, marginBottom: 8 }}>Message</div>
-              <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 10, padding: 12, marginBottom: 10, fontSize: 13, color: T.creamDim, fontStyle: "italic" }}>"I love NeuroSaathi"</div>
+              <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 10, padding: 12, marginBottom: 10, fontSize: 13, color: T.creamDim, fontStyle: "italic" }}>"I love MindSaathi"</div>
               <div style={{ fontSize: 12, color: T.creamFaint, marginBottom: 8 }}>From</div>
               <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 10, padding: 12, fontSize: 13, color: T.cream }}>Dr. Elena Marsh<span style={{ color: T.green, fontSize: 11 }}> · Verified</span></div>
             </DarkCard>
@@ -238,7 +238,7 @@ export default function Home({ setView }) {
         <Stars count={90} />
         <div style={{ position: "absolute", bottom: -60, left: "50%", transform: "translateX(-50%)", width: 700, height: 350, background: "radial-gradient(ellipse 70% 100% at 50% 100%, rgba(180,100,20,0.16) 0%, transparent 70%)", pointerEvents: "none" }} />
         <div style={{ position: "relative", zIndex: 2 }}>
-          <h2 style={{ fontFamily: "'Instrument Serif',serif", fontSize: "clamp(28px,4vw,50px)", fontWeight: 400, letterSpacing: -1.5, color: T.cream, lineHeight: 1.2, marginBottom: 20 }}>Experience cognitive health like never<br />before with NeuroSaathi</h2>
+          <h2 style={{ fontFamily: "'Instrument Serif',serif", fontSize: "clamp(28px,4vw,50px)", fontWeight: 400, letterSpacing: -1.5, color: T.cream, lineHeight: 1.2, marginBottom: 20 }}>Experience cognitive health like never<br />before with MindSaathi</h2>
           <Btn onClick={() => setView("login")} style={{ fontSize: 16, padding: "14px 32px", marginBottom: 24 }}>⬡ Start Free Assessment</Btn>
           <div style={{ display: "flex", gap: 10, justifyContent: "center", alignItems: "center", marginBottom: 8 }}>
             {["🌐","📱","💻"].map((e, i) => <div key={i} style={{ width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,0.05)", backdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.10)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>{e}</div>)}
@@ -263,9 +263,10 @@ export default function Home({ setView }) {
           </div>
         </div>
         <div style={{ color: T.creamFaint, fontSize: 11, lineHeight: 1.7, maxWidth: 300 }}>
-          <strong style={{ color: T.creamDim }}>Medical Disclaimer:</strong> NeuroSaathi is a screening tool, not a diagnostic device. Always consult a qualified neurologist.
+          <strong style={{ color: T.creamDim }}>Medical Disclaimer:</strong> MindSaathi is a screening tool, not a diagnostic device. Always consult a qualified neurologist.
         </div>
       </footer>
     </div>
   );
 }
+
