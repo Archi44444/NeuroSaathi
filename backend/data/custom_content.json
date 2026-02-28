@@ -2,32 +2,20 @@
   "passages": [],
   "word_sets": [
     {
-      "id": "f3e13e55-6d0f-428d-aced-d1191204bd79",
+      "id": "c93561ac-9b36-4fc6-a407-9ef8e4d772cc",
       "words": [
         "River",
-        "Ramayan",
-        "Bauni",
-        "Baunasur",
-        "Kolkata",
-        "Saltlake",
-        "Pigasur",
-        "Deoghar",
-        "Yamuna",
-        "Greatness",
-        "Tusigreat",
-        "Ramukaka",
-        "Hellobhaiya",
-        "Howare",
-        "Howareu",
-        "Howrah",
-        "Sloth",
-        "Hathi",
-        "Dingdong",
-        "Yoyohoneysingh"
+        "Stone",
+        "Watch",
+        "Pencil",
+        "Phone",
+        "Candle",
+        "Road",
+        "Tree"
       ],
-      "added_by": "Admin",
+      "added_by": "AM",
       "added_role": "doctor",
-      "created_at": "2026-02-23T20:46:30.584935"
+      "created_at": "2026-02-28T09:52:46.869798"
     }
   ]
 }
