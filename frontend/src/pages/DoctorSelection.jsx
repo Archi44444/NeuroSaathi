@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { DarkCard, Btn } from "../components/RiskDashboard";
 import { getDoctors } from "../services/api";
+import { db } from "../firebase";
+import { collection, getDocs, setDoc, doc } from "firebase/firestore";
 
 const LIME = "#C8F135";
 const T_RED = "#e84040";
@@ -8,6 +10,43 @@ const T_AMBER = "#f59e0b";
 const T_GREEN = "#4ade80";
 const T_CREAM = "#f0ece3";
 const T_CREAMFAINT = "rgba(240,236,227,0.5)";
+
+// Sync backend doctor list to Firestore for cross-device access
+async function syncDoctorsToFirebase(doctors) {
+  if (!db || !doctors?.length) return;
+  try {
+    for (const doctor of doctors) {
+      if (doctor.id) {
+        await setDoc(doc(db, "doctors", String(doctor.id)), {
+          id: doctor.id,
+          full_name: doctor.full_name || "",
+          specialization: doctor.specialization || "",
+          hospital: doctor.hospital || "",
+          location: doctor.location || "",
+          consultation_mode: doctor.consultation_mode || "",
+          max_patients: doctor.max_patients || 10,
+          current_patients: doctor.current_patients || 0,
+          bio: doctor.bio || "",
+          updatedAt: new Date().toISOString(),
+        }, { merge: true });
+      }
+    }
+  } catch (e) {
+    // Firestore sync optional — backend is source of truth
+    console.warn("Firestore doctor sync skipped:", e.message);
+  }
+}
+
+// Load doctors from Firestore as fallback
+async function loadDoctorsFromFirebase() {
+  if (!db) return [];
+  try {
+    const snap = await getDocs(collection(db, "doctors"));
+    return snap.docs.map(d => d.data());
+  } catch (e) {
+    return [];
+  }
+}
 
 async function apiFetch(path, method = "GET", body = null) {
   const token = sessionStorage.getItem("neuroaid_token");
@@ -35,11 +74,18 @@ export default function DoctorSelection({ setPage }) {
   async function loadData() {
     try {
       const [list, myData] = await Promise.all([getDoctors(), apiFetch("/auth/doctors/my-doctor")]);
-      setDoctors(list || []);
+      const doctorList = list || [];
+      setDoctors(doctorList);
       setMyDoctor(myData.doctor || null);
       setPendingDoc(myData.pending_doctor || null);
+      // Sync to Firestore so other devices can see these doctors
+      syncDoctorsToFirebase(doctorList);
     } catch (e) {
-      // silently handle
+      // Backend failed — try Firebase fallback
+      try {
+        const fbDoctors = await loadDoctorsFromFirebase();
+        setDoctors(fbDoctors);
+      } catch (_) {}
     } finally {
       setLoading(false);
     }

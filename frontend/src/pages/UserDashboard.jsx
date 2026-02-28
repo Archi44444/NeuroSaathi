@@ -4,12 +4,41 @@ import { DarkCard, Btn, Badge, MiniChart } from "../components/RiskDashboard";
 import { getUser, getMyResults, getDoctors } from "../services/api";
 import { useAssessment } from "../context/AssessmentContext";
 import { submitAnalysis } from "../services/api";
+import { db } from "../firebase";
+import { collection, getDocs, setDoc, doc } from "firebase/firestore";
 
 const LIME = "#C8F135";
 const RED  = "#e84040";
 const AMB  = "#f59e0b";
 const BLU  = "#60a5fa";
 const PUR  = "#a78bfa";
+
+/* ─────────────────────────────────────────────
+   Firebase doctor sync helpers
+───────────────────────────────────────────── */
+async function syncDoctorsToFirebase(doctors) {
+  if (!db || !doctors?.length) return;
+  try {
+    for (const doctor of doctors) {
+      if (doctor.id) {
+        await setDoc(doc(db, "doctors", String(doctor.id)), {
+          id: doctor.id, full_name: doctor.full_name || "",
+          specialization: doctor.specialization || "", hospital: doctor.hospital || "",
+          location: doctor.location || "", consultation_mode: doctor.consultation_mode || "",
+          max_patients: doctor.max_patients || 10, current_patients: doctor.current_patients || 0,
+          bio: doctor.bio || "", updatedAt: new Date().toISOString(),
+        }, { merge: true });
+      }
+    }
+  } catch (e) { console.warn("Firestore doctor sync:", e.message); }
+}
+async function loadDoctorsFromFirebase() {
+  if (!db) return [];
+  try {
+    const snap = await getDocs(collection(db, "doctors"));
+    return snap.docs.map(d => d.data());
+  } catch (e) { return []; }
+}
 
 /* ─────────────────────────────────────────────
    helpers
@@ -221,11 +250,18 @@ function DoctorPanel() {
         getDoctors(),
         apiFetch("/auth/doctors/my-doctor"),
       ]);
-      setDoctors(list || []);
+      const doctorList = list || [];
+      setDoctors(doctorList);
       setMyDoctor(myData?.doctor || null);
       setPendingId(myData?.pending_doctor?.id || null);
+      // Sync doctors to Firebase for cross-device visibility
+      syncDoctorsToFirebase(doctorList);
     } catch (e) {
-      setDoctors([]);
+      // Backend unavailable — load from Firebase
+      try {
+        const fbDoctors = await loadDoctorsFromFirebase();
+        setDoctors(fbDoctors);
+      } catch (_) { setDoctors([]); }
     } finally {
       setLoadingDocs(false);
     }
@@ -358,10 +394,12 @@ export default function UserDashboard({ setPage }) {
   const [results,  setResults]  = useState([]);
   const [loading,  setLoading]  = useState(true);
   const [doctorInfo, setDoctorInfo] = useState({ doctor: null, pending_doctor: null });
+  const [showHistory, setShowHistory] = useState(false);
 
-  const { completedCount } = useAssessment();
+  const { completedCount, savedResults, loadHistory, apiResult } = useAssessment();
 
   useEffect(() => {
+    // Load from backend API first
     getMyResults()
       .then(r => setResults(r || []))
       .catch(() => setResults([]))
@@ -370,9 +408,22 @@ export default function UserDashboard({ setPage }) {
     apiFetch("/auth/doctors/my-doctor")
       .then(d => setDoctorInfo(d))
       .catch(() => {});
+
+    // Also load from Firebase (cross-device history)
+    loadHistory().catch(() => {});
   }, []);
 
-  const last    = results.length > 0 ? results[results.length - 1] : null;
+  // Merge backend results + Firebase results (Firebase may have more if backend is stateless)
+  const allResults = results.length > 0 ? results
+    : savedResults.length > 0 ? savedResults
+    : [];
+
+  // If there's a fresh apiResult from current session, surface it at the top
+  const displayResults = apiResult && allResults.length === 0
+    ? [{ ...apiResult, timestamp: new Date().toISOString() }]
+    : allResults;
+
+  const last    = displayResults.length > 0 ? displayResults[displayResults.length - 1] : null;
   const hasData = !!last;
 
   const domains = hasData ? [
@@ -385,7 +436,7 @@ export default function UserDashboard({ setPage }) {
 
   const overallScore = hasData ? Math.round(domains.reduce((s, d) => s + d.v, 0) / domains.length) : null;
 
-  const chartData = results.slice(-7).map(r =>
+  const chartData = displayResults.slice(-7).map(r =>
     Math.round([r.speech_score, r.memory_score, r.reaction_score, r.executive_score, r.motor_score].reduce((a, b) => a + b, 0) / 5)
   );
   while (chartData.length < 7) chartData.unshift(null);
@@ -457,8 +508,8 @@ export default function UserDashboard({ setPage }) {
                   <div style={{ display: "flex", alignItems: "flex-end", gap: 14, marginBottom: 20 }}>
                     <span style={{ fontFamily: "'DM Sans',sans-serif", fontWeight: 900, fontSize: 100, color: "#fff", lineHeight: 1, letterSpacing: "-5px" }}>{overallScore}</span>
                     <div style={{ paddingBottom: 18 }}>
-                      {results.length >= 2 && (() => {
-                        const prev = results[results.length - 2];
+                      {displayResults.length >= 2 && (() => {
+                        const prev = displayResults[displayResults.length - 2];
                         const prevScore = Math.round([prev.speech_score, prev.memory_score, prev.reaction_score, prev.executive_score, prev.motor_score].reduce((a, b) => a + b, 0) / 5);
                         const diff = overallScore - prevScore;
                         return diff !== 0 ? (
@@ -539,6 +590,53 @@ export default function UserDashboard({ setPage }) {
                   <Btn variant="ghost" onClick={() => setPage("progress")} style={{ fontSize: 13 }}>📈 Progress</Btn>
                 </div>
               </DarkCard>
+
+              {/* ── Previous Results History ── */}
+              {displayResults.length > 1 && (
+                <DarkCard style={{ padding: 24, marginTop: 16, border: `1px solid rgba(255,255,255,0.07)` }} hover={false}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+                    <div style={{ fontSize: 10, color: "#555", letterSpacing: 2, textTransform: "uppercase", fontWeight: 700 }}>
+                      📅 Previous Sessions ({displayResults.length - 1})
+                    </div>
+                    <button
+                      onClick={() => setShowHistory(h => !h)}
+                      style={{ background: "none", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8, padding: "4px 12px", color: "#888", fontSize: 12, cursor: "pointer", fontFamily: "'DM Sans',sans-serif" }}
+                    >
+                      {showHistory ? "Hide" : "Show"}
+                    </button>
+                  </div>
+                  {showHistory && (
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      {[...displayResults].reverse().slice(1).map((r, i) => {
+                        const score = Math.round([r.speech_score, r.memory_score, r.reaction_score, r.executive_score, r.motor_score].reduce((a, b) => a + b, 0) / 5);
+                        const date  = new Date(r.timestamp).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+                        const rl    = Object.values(r.risk_levels || {}).includes("High") ? "High" : Object.values(r.risk_levels || {}).includes("Moderate") ? "Moderate" : "Low";
+                        const rlColor = rl === "High" ? RED : rl === "Moderate" ? AMB : LIME;
+                        return (
+                          <div key={i} style={{ display: "flex", alignItems: "center", gap: 14, padding: "12px 16px", borderRadius: 12, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                            <div style={{ width: 44, height: 44, borderRadius: 11, background: "rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'DM Sans',sans-serif", fontWeight: 900, fontSize: 18, color: "#fff", flexShrink: 0 }}>{score}</div>
+                            <div style={{ flex: 1 }}>
+                              <div style={{ fontSize: 13, color: "#fff", fontWeight: 600 }}>{date}</div>
+                              <div style={{ display: "flex", gap: 8, marginTop: 4, flexWrap: "wrap" }}>
+                                {[
+                                  { l: "S", v: Math.round(r.speech_score), c: RED },
+                                  { l: "M", v: Math.round(r.memory_score), c: BLU },
+                                  { l: "R", v: Math.round(r.reaction_score), c: AMB },
+                                  { l: "E", v: Math.round(r.executive_score), c: PUR },
+                                  { l: "Mo", v: Math.round(r.motor_score), c: LIME },
+                                ].map(d => (
+                                  <span key={d.l} style={{ fontSize: 11, color: d.c, fontWeight: 700 }}>{d.l}:{d.v}</span>
+                                ))}
+                              </div>
+                            </div>
+                            <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 10px", borderRadius: 20, background: `${rlColor}12`, color: rlColor, border: `1px solid ${rlColor}25`, flexShrink: 0 }}>{rl}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </DarkCard>
+              )}
             </>
           )}
 

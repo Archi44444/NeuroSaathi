@@ -1,23 +1,16 @@
 """
-NeuroAid AI Service - RAG Educational Layer
-=============================================
-NEW FILE v2.0 — Retrieval-Augmented Generation for educational Q&A.
+NeuroAid AI Service - RAG Educational Layer with Gemini
+========================================================
+Uses Google Gemini (gemini-1.5-flash) for intelligent Q&A.
+Falls back to static knowledge base if Gemini is unavailable.
 
-Purpose:
-  - Explain risk indicators in plain language to users
-  - Retrieve from a controlled, curated knowledge base only
-  - Enforce strict guardrails: NO diagnosis, NO medication advice
-  - Reference only trusted sources: NIH, WHO, Alzheimer's Association,
-    Parkinson's Foundation
-
-Architecture:
-  User question
-    → Guardrail check (refuse if asking for diagnosis / medication)
-    → Retrieve relevant chunk from knowledge base
-    → Generate safe educational response
-    → Append disclaimer
+Guardrails:
+  - Refuses diagnosis requests
+  - Refuses medication/treatment requests
+  - References trusted health organization sources only
 """
 
+import os
 import logging
 from typing import Optional
 
@@ -26,28 +19,83 @@ from knowledge_base.index import retrieve_relevant_chunks
 
 logger = logging.getLogger(__name__)
 
-SYSTEM_PROMPT = """You are an educational assistant for NeuroAid.
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 
-RULES (non-negotiable):
-1. You do NOT diagnose diseases.
+SYSTEM_PROMPT = """You are NeuroBot, an educational assistant for NeuroAid — a cognitive wellness screening tool.
+
+STRICT RULES (never violate):
+1. You do NOT diagnose diseases. Never say "You have [disease]".
 2. You do NOT provide medical treatment advice or medication recommendations.
-3. You explain cognitive risk indicators in simple, non-alarming language.
+3. You explain cognitive performance indicators in simple, reassuring, non-alarming language.
 4. You always recommend consulting a neurologist for clinical decisions.
-5. You only reference information from: NIH, WHO, Alzheimer's Association,
-   Parkinson's Foundation, or the NeuroAid knowledge base.
-6. You never say "You have [disease]" or "You likely have [disease]".
-7. If you cannot answer from the knowledge base, say so and recommend a specialist.
+5. Reference only: NIH, WHO, Alzheimer's Association, Parkinson's Foundation.
+6. If a user seems distressed, show empathy and recommend professional help.
+7. Keep responses concise (2-4 sentences simple, up to 6 for complex questions).
+8. Be warm, supportive, and educational.
 
 SAFE LANGUAGE:
-- Instead of "You have Alzheimer's" → "Elevated memory indicators detected"
-- Instead of "You need medication" → "A neurologist can discuss treatment options"
-- Instead of "This confirms dementia" → "These results suggest further evaluation may be helpful"
+- Instead of "You have Alzheimer's" → "Some memory performance indicators were noted"
+- Instead of "You need medication" → "A neurologist can discuss appropriate next steps"
+- Instead of "This confirms dementia" → "These results suggest further professional evaluation may be helpful"
+
+NeuroAid measures 5 cognitive domains:
+- Speech Analysis: WPM, pause ratio, speech variability, start delay
+- Memory Test: recall accuracy, delayed recall, latency, order matching
+- Reaction Time: processing speed, consistency, miss rate
+- Stroop Test: executive function, cognitive flexibility, inhibitory control
+- Motor Tap Test: rhythmic motor consistency, hand coordination
 """
 
-DISCLAIMER = (
-    "\n\n---\n⚠️ This is NOT medical advice. Always consult a qualified neurologist "
-    "or physician for clinical evaluation and treatment decisions."
-)
+DISCLAIMER = "\n\n⚠️ *This is NOT medical advice. Always consult a qualified neurologist for clinical evaluation.*"
+
+
+def _try_gemini(question: str, context: str, user_context: Optional[dict]) -> Optional[str]:
+    """Try to get a response from Gemini. Returns None if unavailable."""
+    if not GEMINI_API_KEY:
+        return None
+    try:
+        import google.generativeai as genai
+        genai.configure(api_key=GEMINI_API_KEY)
+        model = genai.GenerativeModel(
+            model_name="gemini-1.5-flash",
+            system_instruction=SYSTEM_PROMPT,
+        )
+
+        ctx_str = ""
+        if user_context:
+            parts = []
+            if user_context.get("user_name"):
+                parts.append(f"User: {user_context['user_name']}")
+            if user_context.get("recent_scores"):
+                parts.append(f"Recent scores: {user_context['recent_scores']}")
+            if parts:
+                ctx_str = f"\n[User context: {', '.join(parts)}]"
+
+        knowledge_str = f"\n\n[Knowledge base]:\n{context}" if context else ""
+        full_prompt = f"Question: {question}{ctx_str}{knowledge_str}"
+
+        response = model.generate_content(
+            full_prompt,
+            generation_config=genai.types.GenerationConfig(
+                max_output_tokens=400,
+                temperature=0.3,
+            ),
+        )
+        return response.text.strip() if response.text else None
+    except Exception as e:
+        logger.warning(f"Gemini API call failed: {e}")
+        return None
+
+
+def _static_answer(question: str, chunks: list, user_context: Optional[dict]) -> str:
+    """Compose a safe educational answer from retrieved chunks (fallback)."""
+    intro = "Based on trusted neurological health sources:\n\n"
+    body = "\n\n".join(c["text"] for c in chunks[:2])
+    outro = (
+        "\n\nFor personalized evaluation, please consult a neurologist "
+        "or visit alz.org (Alzheimer's Association) or parkinson.org (Parkinson's Foundation)."
+    )
+    return intro + body + outro
 
 
 def answer_educational_question(
@@ -56,13 +104,7 @@ def answer_educational_question(
 ) -> dict:
     """
     Answer a user's educational question about cognitive health.
-
-    Args:
-        question: The user's natural language question.
-        user_context: Optional dict with age, risk scores for personalization.
-
-    Returns:
-        Dict with 'answer', 'sources', 'guardrail_triggered', 'disclaimer'.
+    Uses Gemini if available, falls back to static knowledge base.
     """
     logger.info(f"RAG query: {question[:80]}")
 
@@ -71,7 +113,7 @@ def answer_educational_question(
     if guardrail_result["blocked"]:
         logger.warning(f"Guardrail triggered: {guardrail_result['reason']}")
         return {
-            "answer": guardrail_result["safe_response"],
+            "answer": guardrail_result["safe_response"] + DISCLAIMER,
             "sources": [],
             "guardrail_triggered": True,
             "reason": guardrail_result["reason"],
@@ -80,51 +122,27 @@ def answer_educational_question(
 
     # ── Retrieve relevant chunks ───────────────────────────────────────────
     chunks = retrieve_relevant_chunks(question, top_k=3)
+    context = "\n\n".join(f"[{c['source']}]: {c['text']}" for c in chunks) if chunks else ""
+    sources = [c["source"] for c in chunks]
 
-    if not chunks:
-        return {
-            "answer": (
-                "I don't have specific information about that topic in my knowledge base. "
-                "I recommend consulting the Alzheimer's Association (alz.org), "
-                "the NIH National Institute on Aging (nia.nih.gov), or speaking "
-                "with a neurologist for accurate information."
-            ),
-            "sources": [],
-            "guardrail_triggered": False,
-            "disclaimer": DISCLAIMER,
-        }
+    # ── Try Gemini first, fall back to static ─────────────────────────────
+    gemini_answer = _try_gemini(question, context, user_context)
 
-    # ── Compose answer from retrieved chunks ───────────────────────────────
-    context = "\n\n".join(
-        f"[{c['source']}]: {c['text']}" for c in chunks
-    )
-
-    # In production: pass context + question to an LLM with SYSTEM_PROMPT.
-    # For now, return structured educational response.
-    answer = _compose_educational_answer(question, chunks, user_context)
+    if gemini_answer:
+        answer = gemini_answer
+    elif chunks:
+        answer = _static_answer(question, chunks, user_context)
+    else:
+        answer = (
+            "I don't have specific information about that in my knowledge base. "
+            "I recommend the Alzheimer's Association (alz.org), "
+            "NIH National Institute on Aging (nia.nih.gov), or a neurologist."
+        )
 
     return {
         "answer": answer + DISCLAIMER,
-        "sources": [c["source"] for c in chunks],
+        "sources": sources,
         "guardrail_triggered": False,
         "disclaimer": DISCLAIMER,
+        "powered_by": "gemini" if gemini_answer else "static",
     }
-
-
-def _compose_educational_answer(
-    question: str,
-    chunks: list,
-    user_context: Optional[dict],
-) -> str:
-    """
-    Compose a safe educational answer from retrieved chunks.
-    In production replace with LLM call using SYSTEM_PROMPT + context.
-    """
-    intro = "Based on information from trusted neurological health sources:\n\n"
-    body = "\n\n".join(c["text"] for c in chunks[:2])
-    outro = (
-        "\n\nFor personalized evaluation, please consult a neurologist "
-        "or visit the Alzheimer's Association (alz.org) or "
-        "Parkinson's Foundation (parkinson.org) for more resources."
-    )
-    return intro + body + outro

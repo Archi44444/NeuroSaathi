@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { T } from "../utils/theme";
 import { DarkCard, Btn, MiniChart } from "../components/RiskDashboard";
 import { useAssessment } from "../context/AssessmentContext";
@@ -496,11 +496,30 @@ function ValidationPanel({ modelValidation }) {
 
 // ── Main Results Page ─────────────────────────────────────────────────────────
 export default function ResultsPage({ setPage }) {
-  const { apiResult, profile, error, reset } = useAssessment();
+  const { apiResult, profile, error, reset, savedResults, loadHistory } = useAssessment();
   const [expandedDomain, setExpandedDomain] = useState(null);
   const [showRaw, setShowRaw] = useState(false);
+  const [historyLoaded, setHistoryLoaded] = useState(false);
 
-  if (!apiResult || typeof apiResult !== "object" || Object.keys(apiResult).length === 0) {
+  // Load history on mount so we can show latest result even after reload
+  useEffect(() => {
+    if (!apiResult && !historyLoaded) {
+      loadHistory().finally(() => setHistoryLoaded(true));
+    }
+  }, [apiResult, historyLoaded, loadHistory]);
+
+  // Use apiResult (fresh) or fall back to latest saved result
+  const latestSaved = savedResults.length > 0 ? savedResults[savedResults.length - 1] : null;
+  const resultData = apiResult || latestSaved;
+
+  if (!resultData || typeof resultData !== "object" || Object.keys(resultData).length === 0) {
+    if (!historyLoaded && !apiResult) {
+      return (
+        <div style={{ color: "#555", fontSize: 14, padding: 40, textAlign: "center" }}>
+          Loading your results…
+        </div>
+      );
+    }
     return (
       <div style={{ color: T.red, background: T.bg, minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>
         <div style={{ textAlign: "center", maxWidth: 400 }}>
@@ -517,7 +536,7 @@ export default function ResultsPage({ setPage }) {
     );
   }
 
-  const r = apiResult;
+  const r = resultData;
   const today = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
   const compositeRisk = r.composite_risk_score ?? 0;
   const wellnessScore = toWellnessScore(compositeRisk);

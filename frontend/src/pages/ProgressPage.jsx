@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { T } from "../utils/theme";
 import { DarkCard, Btn } from "../components/RiskDashboard";
 import { getMyResults } from "../services/api";
+import { useAssessment } from "../context/AssessmentContext";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Progress Page — Longitudinal Tracking
@@ -200,12 +201,20 @@ export default function ProgressPage({ setPage }) {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(false);
   const [err,     setErr]     = useState(null);
+  const { savedResults, loadHistory } = useAssessment();
 
   useEffect(() => {
     setLoading(true);
-    getMyResults()
-      .then(results => setHistory(results || []))
-      .catch(e => setErr(e.message))
+    Promise.all([
+      getMyResults().catch(() => []),
+      loadHistory().catch(() => []),
+    ]).then(([backendResults, fbResults]) => {
+      // Merge: prefer backend, supplement with Firebase
+      const merged = backendResults?.length > 0 ? backendResults
+        : fbResults?.length > 0 ? fbResults
+        : savedResults || [];
+      setHistory(merged);
+    }).catch(e => setErr(e.message))
       .finally(() => setLoading(false));
   }, []);
 

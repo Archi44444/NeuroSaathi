@@ -172,12 +172,14 @@ export default function SpeechTest({ setPage }) {
   }, []);
 
   // ── Real-time pause detection via Web Audio ───────────────────────────────
+  // Uses adaptive threshold: calibrates to the speaker's voice level in the
+  // first 2 seconds, then classifies frames relative to their own baseline.
   function startPauseDetection(stream) {
     try {
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
       const src = ctx.createMediaStreamSource(stream);
       const an  = ctx.createAnalyser();
-      an.fftSize = 512;
+      an.fftSize = 1024;
       src.connect(an);
       audioCtxRef.current = ctx;
       analyserRef.current = an;
@@ -185,11 +187,15 @@ export default function SpeechTest({ setPage }) {
       totalFrames.current  = 0;
 
       const data = new Uint8Array(an.frequencyBinCount);
-      const SILENCE_THRESHOLD = 8; // RMS below this = silence
+      // Adaptive threshold — calibrated from first ~60 frames (~1s)
+      let calibrationFrames = [];
+      let adaptiveThreshold = 3.0; // default conservative (normalized, 0–100 scale)
+      const CALIBRATION_WINDOW = 60;
+      const SILENCE_MULTIPLIER = 0.25; // below 25% of speaker baseline = silence
 
       function tick() {
         an.getByteTimeDomainData(data);
-        // Compute RMS amplitude
+        // Compute RMS amplitude (normalized 0–100)
         let sum = 0;
         for (let i = 0; i < data.length; i++) {
           const v = (data[i] - 128) / 128;
@@ -197,12 +203,28 @@ export default function SpeechTest({ setPage }) {
         }
         const rms = Math.sqrt(sum / data.length) * 100;
 
-        totalFrames.current++;
-        if (rms < SILENCE_THRESHOLD) silentFrames.current++;
+        // Calibration phase: collect non-trivial frames to find speech baseline
+        if (calibrationFrames.length < CALIBRATION_WINDOW) {
+          if (rms > 0.5) calibrationFrames.push(rms);
+          if (calibrationFrames.length >= 20) {
+            // Sort and use upper-quartile median as speech baseline
+            const sorted = [...calibrationFrames].sort((a, b) => a - b);
+            const upper = sorted.slice(Math.floor(sorted.length * 0.5));
+            const baseline = upper.reduce((a, b) => a + b, 0) / upper.length;
+            adaptiveThreshold = Math.max(baseline * SILENCE_MULTIPLIER, 1.0);
+          }
+        }
 
-        // Update live pause ratio
-        if (totalFrames.current % 30 === 0) {
-          const pr = silentFrames.current / totalFrames.current;
+        totalFrames.current++;
+        // Only count frames after first 0.5s (avoid mic warmup artifacts)
+        if (totalFrames.current > 30 && rms < adaptiveThreshold) {
+          silentFrames.current++;
+        }
+
+        // Update live pause ratio every ~0.5s (30 frames @ ~60fps)
+        if (totalFrames.current % 30 === 0 && totalFrames.current > 60) {
+          const effectiveTotal = totalFrames.current - 30; // exclude warmup
+          const pr = Math.min(silentFrames.current / effectiveTotal, 0.95);
           setPauseRatio(Math.round(pr * 100));
         }
 
@@ -373,9 +395,9 @@ export default function SpeechTest({ setPage }) {
       ? Math.min(transcribedWC / passageWC, 1.0)
       : Math.min(effectiveSec / 35, 1.0);  // 35s ≈ average read time
 
-    // Real pause ratio from Web Audio
-    const finalPauseR = totalFrames.current > 0
-      ? parseFloat((silentFrames.current / totalFrames.current).toFixed(3))
+    // Real pause ratio from Web Audio (already calibrated adaptively)
+    const finalPauseR = totalFrames.current > 60
+      ? parseFloat(Math.min(silentFrames.current / Math.max(totalFrames.current - 30, 1), 0.95).toFixed(3))
       : 0.15;
 
     // Speed variability from per-sentence WPMs
@@ -393,9 +415,8 @@ export default function SpeechTest({ setPage }) {
       ? parseFloat(((firstSpeechTs.current - startTs.current) / 1000).toFixed(2))
       : 0.8;
 
-    // Pause ratio: blend audio + speech gaps for max accuracy
-    const speechGapPenalty = (fillerCount * 0.02) + (repCount * 0.015);
-    const pauseRatioFinal  = Math.min(finalPauseR + speechGapPenalty, 0.95);
+    // Pause ratio: use clean acoustic measurement only (fillers tracked separately)
+    const pauseRatioFinal = finalPauseR;
 
     // Get audio B64 for backend (optional)
     let audioB64 = null;
