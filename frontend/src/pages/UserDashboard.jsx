@@ -547,9 +547,9 @@ export default function UserDashboard({ setPage }) {
               {/* Neural Pattern Anomaly row */}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16, marginBottom: 16 }}>
                 {[
-                  { key: "alzheimers", label: "Memory Deviation Index", icon: "🧩", color: PUR, desc: "Memory & recall pattern" },
-                  { key: "dementia",   label: "Executive Drift Score",  icon: "🌀", color: AMB, desc: "Attention & processing" },
-                  { key: "parkinsons", label: "Motor Anomaly Index",    icon: "🎯", color: BLU, desc: "Motor coordination" },
+                  { key: "alzheimers", label: "Memory Deviation Index", color: PUR, desc: "Memory & recall pattern" },
+                  { key: "dementia",   label: "Executive Drift Score",  color: AMB, desc: "Attention & processing" },
+                  { key: "parkinsons", label: "Motor Anomaly Index",    color: BLU, desc: "Motor coordination" },
                 ].map(d => {
                   const prob  = Math.round((last[`${d.key}_risk`] || 0) * 100);
                   const level = last.risk_levels?.[d.key] || "Low";
@@ -558,12 +558,9 @@ export default function UserDashboard({ setPage }) {
                   return (
                     <DarkCard key={d.key} style={{ padding: 22, border: `1px solid ${d.color}20` }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                          <span style={{ fontSize: 20 }}>{d.icon}</span>
-                          <div>
-                            <div style={{ fontWeight: 700, color: "#fff", fontSize: 13 }}>{d.label}</div>
-                            <div style={{ fontSize: 10, color: "#555", marginTop: 1 }}>{d.desc}</div>
-                          </div>
+                        <div>
+                          <div style={{ fontWeight: 700, color: "#fff", fontSize: 13 }}>{d.label}</div>
+                          <div style={{ fontSize: 10, color: "#555", marginTop: 1 }}>{d.desc}</div>
                         </div>
                         <span style={{ background: `${lvlColor}18`, color: lvlColor, padding: "3px 10px", borderRadius: 20, fontSize: 10, fontWeight: 700, border: `1px solid ${lvlColor}33` }}>{statusLabel}</span>
                       </div>
