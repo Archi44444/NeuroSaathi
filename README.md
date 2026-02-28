@@ -1,5 +1,5 @@
 # 🧠 NeuroSaathi
-### Early Cognitive Risk Assessment & Clinical Intelligence Platform  
+###  early neurodegenerative risk screening system that identifies cognitive and motor decline patterns before clinical diagnosis 
 
 NeuroSaathi is a full-stack, early cognitive risk assessment system designed to detect early indicators of neurological conditions such as:
 
