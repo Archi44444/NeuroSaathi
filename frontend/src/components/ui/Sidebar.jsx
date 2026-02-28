@@ -50,7 +50,7 @@ export default function Sidebar({ role, page, setPage, setView }) {
       >
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{ width: 32, height: 32, borderRadius: 10, background: "linear-gradient(135deg,rgba(232,64,64,0.9),rgba(200,36,36,0.95))", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, boxShadow: "0 0 18px rgba(232,64,64,0.45), inset 0 1px 0 rgba(255,255,255,0.15)" }}>⬡</div>
-          <span style={{ fontFamily: "'Instrument Serif',serif", fontSize: 20, color: T.cream, letterSpacing: -0.5 }}>NeuroAid</span>
+          <span style={{ fontFamily: "'Instrument Serif',serif", fontSize: 20, color: T.cream, letterSpacing: -0.5 }}>NeuroSaathi</span>
         </div>
       </div>
 
@@ -155,3 +155,4 @@ export default function Sidebar({ role, page, setPage, setView }) {
     </div>
   );
 }
+

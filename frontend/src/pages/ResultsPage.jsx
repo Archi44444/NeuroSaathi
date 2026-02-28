@@ -336,7 +336,7 @@ function downloadReport(domainScores, wellness, profile) {
     `Age: ${profile?.age || "Not provided"}`,
     "",
     "⚠️  IMPORTANT DISCLAIMER",
-    "   NeuroAid is a behavioral screening tool ONLY.",
+    "   NeuroSaathi is a behavioral screening tool ONLY.",
     "   This tool does NOT provide medical diagnosis.",
     "   Results are influenced by sleep, stress, fatigue,",
     "   and familiarity with testing. Always consult a",
@@ -369,14 +369,14 @@ function downloadReport(domainScores, wellness, profile) {
     "• Consult a neurologist if you have persistent concerns",
     "",
     "This report is for personal awareness only.",
-    "NeuroAid — Early Cognitive Risk Indicator (not a diagnostic device).",
+    "NeuroSaathi — Early Cognitive Risk Indicator (not a diagnostic device).",
     "═══════════════════════════════════════════════════════",
   ];
   const blob = new Blob([lines.join("\n")], { type: "text/plain" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `neuroaid-wellness-${new Date().toISOString().slice(0, 10)}.txt`;
+  a.download = `neurosaathi-wellness-${new Date().toISOString().slice(0, 10)}.txt`;
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -486,7 +486,7 @@ function ValidationPanel({ modelValidation }) {
             <strong style={{ color: "#34d399" }}>Screening approach inspired by:</strong> principles used in the <em>Mini-Mental State Examination (MMSE)</em> and <em>Montreal Cognitive Assessment (MoCA)</em> across domains: Memory, Language, Attention, and Executive Function.
           </p>
           <p style={{ fontSize: 11, color: "rgba(240,236,227,0.28)", lineHeight: 1.6 }}>
-            NeuroAid is not a clinical instrument. Statistical metrics are derived from a synthetic dataset. Clinical validation against real populations is required before any medical deployment.
+            NeuroSaathi is not a clinical instrument. Statistical metrics are derived from a synthetic dataset. Clinical validation against real populations is required before any medical deployment.
           </p>
         </div>
       </div>
@@ -678,7 +678,7 @@ export default function ResultsPage({ setPage }) {
       }}>
         <div style={{ fontWeight: 700, color: "#fbbf24", fontSize: 13, marginBottom: 8 }}>⚕️ Medical Disclaimer</div>
         <p style={{ color: "rgba(251,191,36,0.7)", fontSize: 12, lineHeight: 1.75 }}>
-          NeuroAid is a behavioral cognitive screening tool for personal awareness only. It does NOT diagnose, 
+          NeuroSaathi is a behavioral cognitive screening tool for personal awareness only. It does NOT diagnose, 
           predict, or indicate the presence of any neurological condition including Alzheimer's disease, dementia, 
           Parkinson's disease, or any other disorder. Results are influenced by many non-medical factors including 
           sleep quality, stress levels, familiarity with digital testing, and current mood. A score in any range 

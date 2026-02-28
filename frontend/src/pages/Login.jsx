@@ -116,7 +116,7 @@ export default function LoginPage({ setView, setRole, setCurrentUser, onAuthSucc
         {/* Logo */}
         <div style={{ textAlign: "center", marginBottom: 28 }}>
           <div style={{ width: 48, height: 48, borderRadius: 14, background: "#C8F135",color:"#080808" ,display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, margin: "0 auto 14px", boxShadow: `0 0 32px rgba(232,64,64,0.45), inset 0 1px 0 rgba(255,255,255,0.16)` }}>⬡</div>
-          <div style={{ fontFamily: "'Instrument Serif',serif", fontSize: 26, color: T.cream }}>NeuroAid</div>
+          <div style={{ fontFamily: "'Instrument Serif',serif", fontSize: 26, color: T.cream }}>NeuroSaathi</div>
           <div style={{ color: T.creamFaint, fontSize: 13, marginTop: 4 }}>Cognitive AI Platform</div>
         </div>
 
@@ -272,3 +272,4 @@ export default function LoginPage({ setView, setRole, setCurrentUser, onAuthSucc
     </div>
   );
 }
+

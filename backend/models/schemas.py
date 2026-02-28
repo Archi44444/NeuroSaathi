@@ -1,5 +1,5 @@
 """
-schemas.py — NeuroAid V4
+schemas.py — NeuroSaathi V4
 Extended with all fields required by ResultsPage, ProgressPage, and ProfileSetup.
 """
 from typing import Dict, List, Optional, Any
@@ -154,3 +154,4 @@ class AnalyzeResponse(BaseModel):
         "It is NOT a medical diagnosis. Always consult a qualified "
         "neurologist or physician for clinical evaluation."
     )
+

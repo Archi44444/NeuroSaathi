@@ -1,1 +1,2 @@
-"""Knowledge base package for NeuroAid RAG system."""
+"""Knowledge base package for NeuroSaathi RAG system."""
+
