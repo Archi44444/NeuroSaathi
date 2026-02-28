@@ -1,5 +1,5 @@
 """
-NeuroAid RAG - Knowledge Base Index
+NeuroSaathi RAG - Knowledge Base Index
 =====================================
 NEW FILE v2.0
 
@@ -96,7 +96,7 @@ KNOWLEDGE_BASE = [
     },
     {
         "id": "lexdiv_001",
-        "source": "NeuroAid Educational Content",
+        "source": "NeuroSaathi Educational Content",
         "url": "https://neuroaid.app/education",
         "keywords": ["lexical diversity", "vocabulary", "word variety", "speech score"],
         "text": (
@@ -147,3 +147,4 @@ def retrieve_relevant_chunks(question: str, top_k: int = 3) -> List[dict]:
 
     scored.sort(key=lambda x: -x[0])
     return [chunk for _, chunk in scored[:top_k]]
+

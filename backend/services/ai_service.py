@@ -1,5 +1,5 @@
 """
-ai_service.py — NeuroAid v3
+ai_service.py — NeuroSaathi v3
 18-feature pipeline with separate logistic-regression-style models for:
   - Alzheimer's disease
   - General Dementia

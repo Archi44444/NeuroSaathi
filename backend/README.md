@@ -1,6 +1,6 @@
-# NeuroAid — Backend
+# NeuroSaathi — Backend
 
-FastAPI backend for the **NeuroAid** cognitive risk assessment platform.  
+FastAPI backend for the **NeuroSaathi** cognitive risk assessment platform.  
 It exposes a single `/api/analyze` endpoint that accepts multimodal data
 (speech audio, memory game results, reaction times) and returns a structured
 risk score. All scoring logic is currently **dummy/mock** — designed for
@@ -147,3 +147,4 @@ what it should do. To plug in real ML models:
 1. Load your model in `config.py` (path already configured).
 2. Replace the function body in `ai_service.py` with inference code.
 3. No changes needed in `routers/` or `main.py`.
+

@@ -1,5 +1,5 @@
 """
-NeuroAid AI Service - RAG Educational Layer with Gemini
+NeuroSaathi AI Service - RAG Educational Layer with Gemini
 ========================================================
 Uses Google Gemini (gemini-1.5-flash) for intelligent Q&A.
 Falls back to static knowledge base if Gemini is unavailable.
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 
-SYSTEM_PROMPT = """You are NeuroBot, an educational assistant for NeuroAid — a cognitive wellness screening tool.
+SYSTEM_PROMPT = """You are NeuroBot, an educational assistant for NeuroSaathi — a cognitive wellness screening tool.
 
 STRICT RULES (never violate):
 1. You do NOT diagnose diseases. Never say "You have [disease]".
@@ -38,7 +38,7 @@ SAFE LANGUAGE:
 - Instead of "You need medication" → "A neurologist can discuss appropriate next steps"
 - Instead of "This confirms dementia" → "These results suggest further professional evaluation may be helpful"
 
-NeuroAid measures 5 cognitive domains:
+NeuroSaathi measures 5 cognitive domains:
 - Speech Analysis: WPM, pause ratio, speech variability, start delay
 - Memory Test: recall accuracy, delayed recall, latency, order matching
 - Reaction Time: processing speed, consistency, miss rate
@@ -146,3 +146,4 @@ def answer_educational_question(
         "disclaimer": DISCLAIMER,
         "powered_by": "gemini" if gemini_answer else "static",
     }
+
