@@ -579,7 +579,7 @@ export default function LandingPage({ setView }) {
             <div style={{ position:"absolute",top:0,left:"15%",right:"15%",height:1,background:`linear-gradient(90deg,transparent,${C.lime}44,transparent)` }} />
             <div style={{ maxWidth:1000,margin:"0 auto",display:"flex",justifyContent:"space-around",gap:24,flexWrap:"wrap" }}>
               {[
-                {val:30, suffix:" sec",label:"Instant Risk Report"},
+                {val:10, suffix:"+",label:"Patients screened"},
                 {val:3, suffix:"",label:"Risk levels (Low | Moderate | High)"},
                 {val:8,  suffix:" min",label:"Avg Assessment Time"},
                 {val:5,  suffix:"",label:"Cognitive Tests"},
@@ -662,7 +662,7 @@ export default function LandingPage({ setView }) {
                   </p>
                   {/* Feature pills */}
                   <div style={{ display:"flex",gap:10,marginTop:24,flexWrap:"wrap" }}>
-                    {["✓ 98% Accurate","✓ 8 min avg","✓ Doctor Verified","✓ HIPAA Safe"].map(f=>(
+                    {["✓ Real-Time Scoring","✓ 8 min avg","✓ Doctor-Review Ready","✓ HIPAA Safe"].map(f=>(
                       <div key={f} style={{ background:"rgba(200,241,53,0.08)",border:`1px solid ${C.lime}22`,borderRadius:99,padding:"5px 14px",fontSize:12,fontWeight:600,color:C.lime }}>{f}</div>
                     ))}
                   </div>
@@ -698,7 +698,7 @@ export default function LandingPage({ setView }) {
                     </div>
                     <FloatBtn lime onClick={()=>setView("login")}>Start Assessment →</FloatBtn>
                   </div>
-                  <div style={{ display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:14 }}>
+                  <div style={{ display:"grid",gridTemplateColumns:"repeat(6,minmax(0,1fr))",gap:14 }}>
                     {[
                       { icon:"🎙️",title:"Speech Analysis",  desc:"WPM, pauses & rhythm — vocal biomarkers of cognitive decline.",  accent:C.lime    },
                       { icon:"🧠",title:"Memory Test",       desc:"Recall + delayed recall. Latency, order & intrusion errors.",     accent:"#60a5fa" },
@@ -706,7 +706,14 @@ export default function LandingPage({ setView }) {
                       { icon:"🎨",title:"Stroop Test",       desc:"Color-word interference — gold-standard executive function.",     accent:"#a78bfa" },
                       { icon:"🥁",title:"Motor Tap",         desc:"10-second tapping measures rhythmic motor control.",               accent:"#fb923c" },
                       
-                    ].map(s=><SvcCard key={s.title} {...s} />)}
+                    ].map((s, i) => (
+                      <div
+                        key={s.title}
+                        style={{ gridColumn: i < 3 ? "span 2" : i === 3 ? "2 / span 2" : "4 / span 2" }}
+                      >
+                        <SvcCard {...s} />
+                      </div>
+                    ))}
                   </div>
                 </div>
               </GlowCard>
