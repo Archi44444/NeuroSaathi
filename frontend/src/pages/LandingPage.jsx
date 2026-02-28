@@ -164,46 +164,65 @@ function NavPortal({ setView, open, setOpen }) {
 
 /* ── App cards ───────────────────────────────────────────── */
 const APP_CARDS = [
-  { id:"speech",   label:"Speech AI",  bg:"linear-gradient(145deg,#c0392b,#8e1a13)", emoji:"🎙️", tilt:-8,  tx:-14, ty:10  },
-  { id:"memory",   label:"MemoryTest", bg:"linear-gradient(145deg,#2c5fbc,#1a3a8a)", emoji:"🧠", tilt: 4,  tx:  0, ty:-5  },
-  { id:"reaction", label:"ReactionX",  bg:"linear-gradient(145deg,#1e7a5a,#0f5040)", emoji:"⚡", tilt: 10, tx: 14, ty: 8  },
-  { id:"progress", label:"Progress",   bg:"linear-gradient(145deg,#3d8b3d,#245c24)", emoji:"📈", tilt:-6,  tx:-11, ty:-8  },
-  { id:"stroop",   label:"DocPortal",  bg:"linear-gradient(145deg,#6b35c8,#42198a)", emoji:"🩺", tilt: 2,  tx:  0, ty: 5  },
-  { id:"results",  label:"Reports",    bg:"linear-gradient(145deg,#1a7a82,#0f4d52)", emoji:"📋", tilt: 8,  tx: 11, ty:-6  },
+  { id:"speech",   label:"Speech Check",   note:"pace, pauses and articulation", bg:"#8B3131", accent:"#F6BCBC", tilt:-4, tx:-10, ty: 7 },
+  { id:"memory",   label:"Memory Recall",  note:"short and delayed memory",      bg:"#2C4D93", accent:"#B6CCFF", tilt: 2, tx: -1, ty:-4 },
+  { id:"reaction", label:"Reaction Test",  note:"response timing consistency",    bg:"#26664F", accent:"#A9E4CA", tilt: 5, tx: 10, ty: 6 },
+  { id:"progress", label:"Progress View",  note:"weekly cognitive movement",      bg:"#5A4A97", accent:"#D1C5FF", tilt:-3, tx: -8, ty:-6 },
+  { id:"stroop",   label:"Clinician Desk", note:"review and triage panel",        bg:"#865B2A", accent:"#FFD8AB", tilt: 1, tx:  0, ty: 4 },
+  { id:"results",  label:"Risk Summary",   note:"consolidated report card",       bg:"#1F6A70", accent:"#A9E6EB", tilt: 4, tx:  8, ty:-5 },
 ];
 
-/* AppCard uses its own transform — NO perspective on any ancestor needed */
 function AppCard({ card, mx, my, onClick }) {
   const [hov,setHov]=useState(false);
   const px   = (mx-0.5)*card.tx*1.3;
   const py   = (my-0.5)*card.ty*1.3;
-  /* rotateX/Y need perspective but ONLY on this element's own context */
   const tf = hov
-    ? `scale(1.08) translateY(-6px) rotate(0deg)`
+    ? "scale(1.06) translateY(-6px) rotate(0deg)"
     : `rotate(${card.tilt}deg) translate(${px}px,${py}px)`;
+
   return (
     <div onClick={onClick} onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)} style={{
-      width:160,height:160,background:card.bg,borderRadius:32,
-      display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:10,
+      width:"100%",height:210,
+      background:card.bg,
+      border:"1px solid rgba(255,255,255,0.20)",
+      borderRadius:24,
+      display:"flex",flexDirection:"column",alignItems:"flex-start",justifyContent:"space-between",
+      padding:"18px 16px 16px",
       cursor:"pointer",position:"relative",overflow:"hidden",
       transform:tf,
       transition:hov
-        ? "transform 0.18s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.2s"
+        ? "transform 0.18s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.2s,border-color 0.2s"
         : "transform 0.55s cubic-bezier(0.25,0.46,0.45,0.94),box-shadow 0.4s",
       boxShadow:hov
-        ? "0 32px 72px rgba(0,0,0,0.75),0 0 0 1px rgba(255,255,255,0.15)"
-        : "0 16px 48px rgba(0,0,0,0.60),0 0 0 1px rgba(255,255,255,0.08)",
+        ? `0 30px 68px rgba(0,0,0,0.60),0 0 0 1px ${card.accent}66`
+        : "0 18px 46px rgba(0,0,0,0.48)",
+      borderColor:hov ? `${card.accent}88` : "rgba(255,255,255,0.20)",
       willChange:"transform",
     }}>
-      <div style={{ position:"absolute",top:0,left:0,right:0,height:"50%",background:"linear-gradient(180deg,rgba(255,255,255,0.18) 0%,transparent 100%)",borderRadius:"32px 32px 0 0",pointerEvents:"none" }} />
-      <div style={{ position:"absolute",bottom:0,left:0,right:0,height:"40%",background:"linear-gradient(0deg,rgba(0,0,0,0.30) 0%,transparent 100%)",pointerEvents:"none" }} />
-      <div style={{ fontSize:42,filter:"drop-shadow(0 4px 12px rgba(0,0,0,0.5))",zIndex:2 }}>{card.emoji}</div>
-      <div style={{ fontFamily:"'DM Sans',sans-serif",fontWeight:700,fontSize:13,color:"rgba(255,255,255,0.92)",letterSpacing:0.3,zIndex:2,textShadow:"0 2px 8px rgba(0,0,0,0.6)" }}>{card.label}</div>
+      <div style={{ position:"absolute",inset:0,background:"linear-gradient(120deg,rgba(255,255,255,0.20) -30%,rgba(255,255,255,0.00) 38%,rgba(255,255,255,0.22) 82%,rgba(255,255,255,0.00) 110%)",mixBlendMode:"soft-light",animation:"card-sheen 8.5s ease-in-out infinite",pointerEvents:"none" }} />
+      <div style={{ position:"absolute",top:0,left:0,right:0,height:2,background:card.accent,pointerEvents:"none" }} />
+      <div style={{ position:"absolute",bottom:0,left:0,height:3,width:"56%",background:card.accent,animation:"card-scan 4.2s ease-in-out infinite",pointerEvents:"none" }} />
+      <div style={{ position:"absolute",top:14,right:14,width:9,height:9,borderRadius:"50%",background:card.accent,boxShadow:`0 0 0 0 ${card.accent}55`,animation:"card-pulse 2.8s ease-out infinite",pointerEvents:"none" }} />
+
+      <div style={{
+        minWidth:42,height:24,borderRadius:999,
+        display:"flex",alignItems:"center",justifyContent:"center",
+        background:"rgba(0,0,0,0.20)",border:"1px solid rgba(255,255,255,0.24)",
+        color:"#FFFFFF",fontSize:20,fontWeight:700,letterSpacing:1.1,padding:"0 10px",
+        fontFamily:"'DM Sans',sans-serif",
+      }}>{card.id.toUpperCase()}</div>
+
+      <div style={{ position:"relative",zIndex:2 }}>
+        <div style={{ fontFamily:"'DM Sans',sans-serif",fontWeight:800,fontSize:20,color:"#FFFFFF",letterSpacing:0.1,marginBottom:4 }}>
+          {card.label}
+        </div>
+        <div style={{ fontFamily:"'DM Sans',sans-serif",fontWeight:500,fontSize:16,color:"rgba(255,255,255,0.84)",lineHeight:1.5,maxWidth:180 }}>
+          {card.note}
+        </div>
+      </div>
     </div>
   );
 }
-
-/* ── Counter ─────────────────────────────────────────────── */
 function Counter({ to, suffix="" }) {
   const [val,setVal]=useState(0);
   const ref=useRef(null);
@@ -309,6 +328,9 @@ export default function LandingPage({ setView }) {
       @keyframes card-in     {from{opacity:0;transform:translateY(40px) scale(.92)}to{opacity:1;transform:translateY(0) scale(1)}}
       @keyframes more-in     {from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
       @keyframes dd-in       {from{opacity:0;transform:translateX(-50%) translateY(-8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+      @keyframes card-sheen  {0%{transform:translateX(-16%) translateY(0)}50%{transform:translateX(6%) translateY(-3%)}100%{transform:translateX(-16%) translateY(0)}}
+      @keyframes card-pulse  {0%{box-shadow:0 0 0 0 rgba(255,255,255,0.45)}70%{box-shadow:0 0 0 10px rgba(255,255,255,0)}100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}}
+      @keyframes card-scan   {0%{transform:translateX(-62%)}50%{transform:translateX(82%)}100%{transform:translateX(-62%)}}
       html,body{scroll-behavior:smooth}
       *{box-sizing:border-box}
       ::-webkit-scrollbar{width:4px}
@@ -501,9 +523,12 @@ export default function LandingPage({ setView }) {
 
         {/* ── APP CARD GRID ── */}
         <div style={{
-          display:"grid",gridTemplateColumns:"repeat(3,160px)",gap:18,
+          display:"grid",
+          gridTemplateColumns:"repeat(3,minmax(0,1fr))",
+          gap:20,
+          width:"min(92vw,900px)",
           opacity:mounted?1:0,transition:"opacity 0.5s ease 0.3s",
-          position:"relative",zIndex:2,
+          position:"relative",zIndex:2,alignItems:"stretch",
         }}>
           {APP_CARDS.map((card,i)=>(
             <div key={card.id} style={{ animation:mounted?`card-in 0.7s cubic-bezier(.34,1.56,.64,1) ${0.2+i*0.08}s both`:"none" }}>
