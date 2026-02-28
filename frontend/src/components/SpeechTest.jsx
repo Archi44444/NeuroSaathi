@@ -1,5 +1,5 @@
 /**
- * SpeechTest.jsx — NeuroSaathi V4
+ * SpeechTest.jsx — MindSaathi V4
  * ================================
  * Uses the Web Speech API (SpeechRecognition) for REAL transcription,
  * plus the Web Audio API for real pause detection and amplitude analysis.
@@ -768,3 +768,4 @@ export default function SpeechTest({ setPage }) {
     </div>
   );
 }
+

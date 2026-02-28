@@ -173,7 +173,7 @@ export default function DoctorSelection({ setPage }) {
           <div style={{ fontSize: 48, marginBottom: 16 }}>🩺</div>
           <div style={{ fontFamily: "'DM Sans',sans-serif", fontWeight: 900, fontSize: 22, color: "#fff", marginBottom: 10 }}>No Doctors Registered Yet</div>
           <p style={{ color: "#555", fontSize: 14, maxWidth: 360, margin: "0 auto", lineHeight: 1.7 }}>
-            Ask your doctor to register on NeuroSaathi as a Doctor account to appear here.
+            Ask your doctor to register on MindSaathi as a Doctor account to appear here.
           </p>
         </DarkCard>
       ) : (
@@ -249,4 +249,5 @@ export default function DoctorSelection({ setPage }) {
     </div>
   );
 }
+
 

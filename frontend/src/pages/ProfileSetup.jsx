@@ -1,5 +1,5 @@
 /**
- * ProfileSetup.jsx — NeuroSaathi V4
+ * ProfileSetup.jsx — MindSaathi V4
  * Full patient profile with all clinical normalization fields.
  * Saves via PUT /auth/profile-extended (stores all fields in JSON).
  */
@@ -362,4 +362,5 @@ export default function ProfileSetup({ onComplete, user }) {
     </div>
   );
 }
+
 

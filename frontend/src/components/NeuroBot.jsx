@@ -1,5 +1,5 @@
 /**
- * NeuroBot — NeuroSaathi's assistive AI chatbot
+ * NeuroBot — MindSaathi's assistive AI chatbot
  * Floating widget, available on every page after login.
  * Uses the RAG /api/chat endpoint for educational answers.
  * Falls back to built-in responses if the backend is unavailable.
@@ -38,7 +38,7 @@ const FALLBACKS = [
   {
     triggers: ["alzheimer", "dementia", "diagnosis", "disease", "diagnose"],
     answer:
-      "NeuroBot cannot provide a diagnosis. NeuroSaathi identifies cognitive performance indicators only — it is not a clinical diagnostic tool. For any concerns about Alzheimer's or dementia, please consult a qualified neurologist. The Alzheimer's Association helpline is available at 1-800-272-3900.",
+      "NeuroBot cannot provide a diagnosis. MindSaathi identifies cognitive performance indicators only — it is not a clinical diagnostic tool. For any concerns about Alzheimer's or dementia, please consult a qualified neurologist. The Alzheimer's Association helpline is available at 1-800-272-3900.",
   },
   {
     triggers: ["medicine", "medication", "drug", "pill", "treat", "cure"],
@@ -58,7 +58,7 @@ const FALLBACKS = [
   {
     triggers: ["hi", "hello", "hey", "help", "start", "what can"],
     answer:
-      "Hi! I'm NeuroBot 🧠, NeuroSaathi's cognitive wellness guide. I can explain your test scores, describe what each cognitive domain measures, or answer questions about brain health. Just ask — for example: \"What does my reaction score mean?\" or \"Why is memory important?\"",
+      "Hi! I'm NeuroBot 🧠, MindSaathi's cognitive wellness guide. I can explain your test scores, describe what each cognitive domain measures, or answer questions about brain health. Just ask — for example: \"What does my reaction score mean?\" or \"Why is memory important?\"",
   },
 ];
 
@@ -374,3 +374,4 @@ export default function NeuroBot({ user }) {
     </>
   );
 }
+

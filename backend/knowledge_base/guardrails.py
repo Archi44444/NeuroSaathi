@@ -1,5 +1,5 @@
 """
-NeuroSaathi RAG - Guardrail Rules
+MindSaathi RAG - Guardrail Rules
 ================================
 NEW FILE v2.0
 
@@ -37,7 +37,7 @@ MEDICATION_PATTERNS = [
 ]
 
 SAFE_DIAGNOSIS_RESPONSE = (
-    "NeuroSaathi cannot provide a diagnosis. This screening tool identifies "
+    "MindSaathi cannot provide a diagnosis. This screening tool identifies "
     "cognitive risk indicators for educational purposes only. "
     "For a clinical diagnosis, please consult a qualified neurologist or physician. "
     "You can find a specialist through your local hospital or the "
@@ -45,7 +45,7 @@ SAFE_DIAGNOSIS_RESPONSE = (
 )
 
 SAFE_MEDICATION_RESPONSE = (
-    "NeuroSaathi cannot provide medication or treatment advice. "
+    "MindSaathi cannot provide medication or treatment advice. "
     "Only a qualified physician or neurologist can recommend appropriate treatment. "
     "Please consult your doctor, who can discuss evidence-based options based on "
     "your complete medical history and clinical evaluation."
@@ -78,5 +78,6 @@ def check_guardrails(question: str) -> dict:
             }
 
     return {"blocked": False, "reason": None, "safe_response": None}
+
 
 

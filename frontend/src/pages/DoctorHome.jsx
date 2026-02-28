@@ -236,7 +236,7 @@ export default function DoctorHome({ setPage, setSelectedPatient }) {
               <div style={{ fontSize: 48, marginBottom: 20 }}>👥</div>
               <div style={{ fontFamily: "'DM Sans',sans-serif", fontWeight: 900, fontSize: 22, color: "#fff", marginBottom: 10 }}>No patients yet</div>
               <p style={{ color: "#555", fontSize: 14, maxWidth: 380, margin: "0 auto", lineHeight: 1.7 }}>
-                Share the NeuroSaathi app with your patients so they can register and complete cognitive assessments.
+                Share the MindSaathi app with your patients so they can register and complete cognitive assessments.
               </p>
             </DarkCard>
           )}
@@ -245,3 +245,4 @@ export default function DoctorHome({ setPage, setSelectedPatient }) {
     </div>
   );
 }
+

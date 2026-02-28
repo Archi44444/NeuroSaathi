@@ -1,4 +1,4 @@
-# NeuroSaathi — Setup Guide
+# MindSaathi — Setup Guide
 
 ## What's New (v5)
 
@@ -104,3 +104,4 @@ The pause ratio now uses **adaptive voice activity detection (VAD)**:
 - Fillers/repetitions are tracked separately — NOT added to pause ratio
 
 This means a quiet speaker and a loud speaker get the same meaningful pause ratio relative to their own voice.
+

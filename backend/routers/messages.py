@@ -1,5 +1,5 @@
 """
-messages.py — NeuroSaathi Messaging Router
+messages.py — MindSaathi Messaging Router
 Mounted at /api (no extra prefix), so routes are:
   POST   /api/messages/send
   GET    /api/messages/unread/count   ← MUST be before /{id}
@@ -205,4 +205,5 @@ def delete_message(message_id: str, authorization: str = Header(...)):
             break
     _save_msgs(msgs)
     return {"ok": True}
+
 

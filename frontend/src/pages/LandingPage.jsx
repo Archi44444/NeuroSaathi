@@ -29,7 +29,7 @@ const NAV_DATA = {
     { title:"Advanced", items:[
       { icon:"🩺", label:"Doctor Portal",     desc:"How clinicians review patient data" },
       { icon:"📊", label:"Progress Tracking", desc:"Monitor improvement over time" },
-      { icon:"🔗", label:"API Docs",          desc:"Integrate NeuroSaathi into your platform" },
+      { icon:"🔗", label:"API Docs",          desc:"Integrate MindSaathi into your platform" },
     ]},
   ],
   Support: [
@@ -46,7 +46,7 @@ const NAV_DATA = {
   ],
   About: [
     { title:"Company", items:[
-      { icon:"🧠", label:"Our Mission",  desc:"Why we built NeuroSaathi" },
+      { icon:"🧠", label:"Our Mission",  desc:"Why we built MindSaathi" },
       { icon:"👥", label:"The Team",     desc:"Neuroscientists and engineers" },
       { icon:"📰", label:"Press & Media",desc:"Coverage and announcements" },
     ]},
@@ -119,7 +119,7 @@ function NavPortal({ setView, open, setOpen }) {
       {/* Logo */}
       <div style={{ display:"flex",alignItems:"center",gap:10 }}>
         <div style={{ width:34,height:34,borderRadius:10,background:`linear-gradient(135deg,${C.lime},${C.limeDim})`,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:900,fontSize:15,color:"#080808",boxShadow:`0 0 18px ${C.lime}44` }}>N</div>
-        <span style={{ fontWeight:900,fontSize:18,letterSpacing:"-0.5px",color:C.white }}>NeuroSaathi</span>
+        <span style={{ fontWeight:900,fontSize:18,letterSpacing:"-0.5px",color:C.white }}>MindSaathi</span>
       </div>
 
       {/* Links */}
@@ -415,7 +415,7 @@ export default function LandingPage({ setView }) {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 22px", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <div style={{ width: 8, height: 8, borderRadius: "50%", background: C.lime, animation: "pulse-dot 2s infinite" }} />
-                <span style={{ fontFamily: "'DM Sans',sans-serif", fontWeight: 700, color: C.lime, fontSize: 13, letterSpacing: 1, textTransform: "uppercase" }}>NeuroSaathi Demo</span>
+                <span style={{ fontFamily: "'DM Sans',sans-serif", fontWeight: 700, color: C.lime, fontSize: 13, letterSpacing: 1, textTransform: "uppercase" }}>MindSaathi Demo</span>
               </div>
               <button
                 onClick={() => setShowDemo(false)}
@@ -428,7 +428,7 @@ export default function LandingPage({ setView }) {
                 width="100%"
                 height="100%"
                 src="https://www.youtube.com/embed/dQw4w9WgXcQ"
-                title="NeuroSaathi Demo"
+                title="MindSaathi Demo"
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
@@ -488,7 +488,7 @@ export default function LandingPage({ setView }) {
           }}>
             Experience cognitive health<br/>
             like never before<br/>
-            <span style={{ color:C.lime }}>with NeuroSaathi.</span>
+            <span style={{ color:C.lime }}>with MindSaathi.</span>
           </h1>
           {/* Sub */}
           <p style={{
@@ -650,12 +650,12 @@ export default function LandingPage({ setView }) {
                 <div style={{ position:"relative",zIndex:2,maxWidth:520 }}>
                   <div style={{ display:"inline-flex",alignItems:"center",gap:8,background:`rgba(200,241,53,0.10)`,border:`1px solid ${C.lime}33`,borderRadius:99,padding:"5px 14px",marginBottom:20,fontSize:11,fontWeight:700,color:C.lime,letterSpacing:1.5,textTransform:"uppercase" }}>
                     <span style={{ width:5,height:5,borderRadius:"50%",background:C.lime,display:"inline-block",animation:"pulse-dot 2s infinite" }} />
-                    Why NeuroSaathi
+                    Why MindSaathi
                   </div>
                   <h2 style={{ fontFamily:"'DM Sans',sans-serif",fontWeight:900,fontSize:"clamp(26px,3.2vw,50px)",letterSpacing:"-1.5px",lineHeight:1.08,color:C.white,marginBottom:16 }}>
                     Experience cognitive health<br/>
                     like never before<br/>
-                    <span style={{ color:C.lime }}>with NeuroSaathi.</span>
+                    <span style={{ color:C.lime }}>with MindSaathi.</span>
                   </h2>
                   <p style={{ color:C.dim,fontSize:15,lineHeight:1.75,maxWidth:420 }}>
                     AI-powered screening that's fast, accurate, and doctor-verified — all from your browser. No appointments, no waiting rooms.
@@ -728,7 +728,7 @@ export default function LandingPage({ setView }) {
           }}>
             <div style={{ display:"flex",alignItems:"center",gap:10 }}>
               <div style={{ width:32,height:32,borderRadius:9,background:`linear-gradient(135deg,${C.lime},${C.limeDim})`,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:900,fontSize:14,color:"#080808" }}>N</div>
-              <span style={{ fontWeight:900,fontSize:17,letterSpacing:"-0.5px" }}>NeuroSaathi</span>
+              <span style={{ fontWeight:900,fontSize:17,letterSpacing:"-0.5px" }}>MindSaathi</span>
             </div>
 
             <button onClick={handleClose} style={{
@@ -773,4 +773,5 @@ export default function LandingPage({ setView }) {
     </div>
   );
 }
+
 
