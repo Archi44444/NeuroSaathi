@@ -3,8 +3,10 @@ import { T } from "../utils/theme";
 import NeuroBot from "./NeuroBot";
 import { GAMES } from "../utils/gamesCatalog";
 import { getUnreadCount } from "../services/api";
+import { setCommunityPresence, subscribeCommunityMembers } from "../services/community";
 
 const LIME = "#C8F135";
+const COMMUNITY_STATUS_COLOR = { online: "#34d399", away: "#fbbf24", offline: "#6b7280" };
 
 function seededUnit(seed) {
   const value = Math.sin(seed * 12.9898 + 78.233) * 43758.5453123;
@@ -200,6 +202,8 @@ export function Sidebar({ role, page, setPage, setView, onLogout, isMobile = fal
   const displayName = storedUser?.full_name || (role === "doctor" ? "Doctor" : "Patient");
   const initials = displayName.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
   const [unread, setUnread] = useState(0);
+  const [communityOpen, setCommunityOpen] = useState(() => page === "community");
+  const [communityMembers, setCommunityMembers] = useState([]);
 
   const userTests = ["speech", "memory", "reaction", "stroop", "tap"];
   const userGames = GAMES.map(g => g.id);
@@ -233,7 +237,18 @@ export function Sidebar({ role, page, setPage, setView, onLogout, isMobile = fal
     if (role === "doctor") return;
     if (page === "assessments" || userTests.includes(page)) setAssessmentsOpen(true);
     if (page === "games" || page === "game-results" || userGames.includes(page)) setGamesOpen(true);
+    if (page === "community") setCommunityOpen(true);
   }, [page, role]);
+
+  useEffect(() => {
+    if (role === "doctor") return undefined;
+    const unsub = subscribeCommunityMembers(setCommunityMembers);
+    setCommunityPresence("online").catch(() => {});
+    return () => {
+      unsub();
+      setCommunityPresence("away").catch(() => {});
+    };
+  }, [role]);
 
   const uNav = [
     { id: "dashboard",   label: "Overview",    icon: "O" },
@@ -260,6 +275,7 @@ export function Sidebar({ role, page, setPage, setView, onLogout, isMobile = fal
   ];
 
   const nav = role === "doctor" ? dNav : uNav;
+  const onlineCommunityMembers = communityMembers.filter((m) => m.status === "online");
 
   function handleNavClick(nextPage) {
     setPage(nextPage);
@@ -378,6 +394,51 @@ export function Sidebar({ role, page, setPage, setView, onLogout, isMobile = fal
             </button>
           );
         })}
+
+        {role !== "doctor" && (
+          <div style={{ marginTop: 8 }}>
+            <div style={{ height: 1, background: "rgba(255,255,255,0.07)", margin: "8px 6px" }} />
+            <button
+              onClick={() => { handleNavClick("community"); setCommunityOpen((v) => !v); }}
+              style={{
+                width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "10px 14px",
+                borderRadius: 12, border: page === "community" ? `1px solid ${LIME}33` : "1px solid transparent",
+                background: page === "community" ? "rgba(200,241,53,0.10)" : "transparent",
+                color: page === "community" ? LIME : "#555", fontWeight: page === "community" ? 700 : 400,
+                fontSize: 13.5, cursor: "pointer", textAlign: "left", transition: "all 0.15s",
+                fontFamily: "'DM Sans',sans-serif",
+              }}
+            >
+              <span style={{ fontSize: 14, width: 18 }}>C</span>
+              <span style={{ flex: 1 }}>Community</span>
+              <span style={{ fontSize: 10, opacity: 0.75 }}>{onlineCommunityMembers.length}</span>
+              <span style={{ fontSize: 10, opacity: 0.75, transform: communityOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}>v</span>
+            </button>
+
+            {communityOpen && (
+              <div style={{ marginTop: 2, marginBottom: 4, paddingLeft: 18, display: "flex", flexDirection: "column", gap: 2 }}>
+                {onlineCommunityMembers.slice(0, 5).map((member) => (
+                  <div key={member.id} style={{
+                    display: "flex", alignItems: "center", gap: 8, padding: "7px 10px", borderRadius: 10,
+                    background: "rgba(255,255,255,0.02)",
+                  }}>
+                    <span style={{
+                      width: 8, height: 8, borderRadius: "50%",
+                      background: COMMUNITY_STATUS_COLOR[member.status] || COMMUNITY_STATUS_COLOR.online,
+                      display: "inline-block", flexShrink: 0,
+                    }} />
+                    <span style={{ flex: 1, fontSize: 12, color: "rgba(255,255,255,0.58)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      {member.name}
+                    </span>
+                  </div>
+                ))}
+                {onlineCommunityMembers.length === 0 ? (
+                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.28)", padding: "6px 10px" }}>No one online yet</div>
+                ) : null}
+              </div>
+            )}
+          </div>
+        )}
       </nav>
 
       <div style={{ padding:"16px 22px", borderTop:"1px solid rgba(255,255,255,0.05)", position:"relative", zIndex:2 }}>
@@ -454,6 +515,7 @@ export function Shell({ role, page, setPage, setView, children, onLogout }) {
     tap:              "MOTOR",
     results:          "RESULTS",
     progress:         "PROGRESS",
+    community:        "COMMUNITY",
     "doctor-dashboard":"DOCTOR",
     patients:         "PATIENTS",
   };
@@ -538,8 +600,6 @@ export function Shell({ role, page, setPage, setView, children, onLogout }) {
     </div>
   );
 }
-
-
 
 
 

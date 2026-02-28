@@ -22,6 +22,7 @@ import DoctorHome      from "./pages/DoctorHome";
 import PatientDetail   from "./pages/PatientDetail";
 import ContentManager  from "./pages/ContentManager";
 import DoctorSelection from "./pages/DoctorSelection";
+import CommunityPage from "./pages/CommunityPage";
 
 import SpeechTest   from "./components/SpeechTest";
 import MemoryTest   from "./components/MemoryTest";
@@ -147,6 +148,7 @@ export default function App() {
       case "results":     return <ResultsPage     setPage={setPage} />;
       case "progress":    return <ProgressPage    setPage={setPage} />;
       case "messages":    return <MessagesPage />;
+      case "community":   return <CommunityPage setPage={setPage} />;
       case "doctors":     return <DoctorSelection setPage={setPage} />;
       default:
         if (GAME_IDS.includes(p)) return <GamePlay setPage={setPage} gameId={p} />;
