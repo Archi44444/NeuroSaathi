@@ -296,7 +296,11 @@ export function Sidebar({ role, page, setPage, setView, onLogout, isMobile = fal
 
       <div style={{ padding:"28px 22px 20px", borderBottom:"1px solid rgba(255,255,255,0.06)", cursor:"pointer", position:"relative", zIndex:2 }} onClick={handleLogoClick} title="Go to dashboard">
         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-          <div style={{ width:32, height:32, borderRadius:9, background:`linear-gradient(135deg,${LIME},#9ABF28)`, display:"flex", alignItems:"center", justifyContent:"center", fontWeight:900, fontSize:14, color:"#080808", boxShadow:`0 0 16px ${LIME}44` }}>N</div>
+          <img
+            src="/logo-brain.svg"
+            alt="MindSaathi logo"
+            style={{ width:32, height:32, borderRadius:9, display:"block", boxShadow:`0 0 16px ${LIME}44` }}
+          />
           <span style={{ fontFamily:"'DM Sans',sans-serif", fontWeight:900, fontSize:18, color:"#fff", letterSpacing:-0.5 }}>MindSaathi</span>
         </div>
       </div>
