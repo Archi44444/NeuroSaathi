@@ -113,40 +113,43 @@ export default function App() {
     />
   );
 
-  // ── Patient pages ─────────────────────────────────────────────────────────
-  const userPages = {
-    "dashboard":   <UserDashboard  setPage={setPage} />,
-    "assessments": <AssessmentHub  setPage={setPage} />,
-    "speech":      <SpeechTest     setPage={setPage} />,
-    "memory":      <MemoryTest     setPage={setPage} />,
-    "reaction":    <ReactionTest   setPage={setPage} />,
-    "stroop":      <StroopTest     setPage={setPage} />,
-    "tap":         <TapTest        setPage={setPage} />,
-    "results":     <ResultsPage    setPage={setPage} />,
-    "progress":    <ProgressPage   setPage={setPage} />,
-    "messages":    <MessagesPage />,
-    "doctors":     <DoctorSelection setPage={setPage} />,
-  };
-
-  // ── Doctor pages ──────────────────────────────────────────────────────────
-  const doctorPages = {
-    "doctor-dashboard": <DoctorHome      setPage={setPage} setSelectedPatient={setPatient} />,
-    "patients":         <DoctorDashboard setPage={setPage} setSelectedPatient={setPatient} />,
-    "patient-detail":   <PatientDetail   setPage={setPage} patient={patient} />,
-    "messages":         <MessagesPage />,
-    "content":          <ContentManager />,
-  };
-
-  const isDoctor = role === "doctor";
-  const content  = isDoctor
-    ? (doctorPages[page] ?? doctorPages["doctor-dashboard"])
-    : (userPages[page]   ?? userPages["dashboard"]);
+  // ── Render active page ────────────────────────────────────────────────────
+  // IMPORTANT: Use a function — NOT an object literal — so only the active
+  // page is mounted. An object literal instantiates ALL pages on every render,
+  // which unmounts/remounts tests and wipes their local state before
+  // AssessmentContext can receive the data (Speech=0, Reaction=0 bug).
+  function renderPage(p) {
+    if (role === "doctor") {
+      switch (p) {
+        case "doctor-dashboard": return <DoctorHome      setPage={setPage} setSelectedPatient={setPatient} />;
+        case "patients":         return <DoctorDashboard setPage={setPage} setSelectedPatient={setPatient} />;
+        case "patient-detail":   return <PatientDetail   setPage={setPage} patient={patient} />;
+        case "messages":         return <MessagesPage />;
+        case "content":          return <ContentManager />;
+        default:                 return <DoctorHome      setPage={setPage} setSelectedPatient={setPatient} />;
+      }
+    }
+    switch (p) {
+      case "dashboard":   return <UserDashboard   setPage={setPage} />;
+      case "assessments": return <AssessmentHub   setPage={setPage} />;
+      case "speech":      return <SpeechTest      setPage={setPage} />;
+      case "memory":      return <MemoryTest      setPage={setPage} />;
+      case "reaction":    return <ReactionTest    setPage={setPage} />;
+      case "stroop":      return <StroopTest      setPage={setPage} />;
+      case "tap":         return <TapTest         setPage={setPage} />;
+      case "results":     return <ResultsPage     setPage={setPage} />;
+      case "progress":    return <ProgressPage    setPage={setPage} />;
+      case "messages":    return <MessagesPage />;
+      case "doctors":     return <DoctorSelection setPage={setPage} />;
+      default:            return <UserDashboard   setPage={setPage} />;
+    }
+  }
 
   return (
     <AssessmentProvider>
       <Shell role={role} page={page} setPage={setPage} setView={setView}
         currentUser={currentUser} onLogout={handleLogout}>
-        {content}
+        {renderPage(page)}
       </Shell>
     </AssessmentProvider>
   );
