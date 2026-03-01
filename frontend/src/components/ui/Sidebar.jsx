@@ -2,7 +2,6 @@ import { useState } from "react";
 import { T } from "../../utils/helpers";
 
 const LIME = "#C8F135";
-const INDIGO = "#818cf8";
 
 const USER_NAV = [
   { id: "dashboard",   label: "Overview",    icon: "◈" },
@@ -20,7 +19,6 @@ const USER_NAV = [
   },
   { id: "results",     label: "Results",     icon: "◆" },
   { id: "progress",    label: "Progress",    icon: "↗" },
-  { id: "games",       label: "Games",       icon: "🎮" },
   { id: "doctors",     label: "My Doctor",   icon: "🩺" },
   { id: "messages",    label: "Messages",    icon: "✉" },
 ];
@@ -31,25 +29,11 @@ const DOCTOR_NAV = [
   { id: "messages",         label: "Messages",  icon: "✉" },
 ];
 
-const COMMUNITY_MEMBERS = [
-  { id: 1, name: "Arjun S.", status: "online" },
-  { id: 2, name: "Priya K.", status: "online" },
-  { id: 3, name: "Rohan M.", status: "away" },
-  { id: 4, name: "Kavya N.", status: "online" },
-  { id: 5, name: "Dev P.", status: "offline" },
-  { id: 6, name: "Sana R.", status: "online" },
-  { id: 7, name: "Ishaan T.", status: "away" },
-  { id: 8, name: "Meera L.", status: "online" },
-];
-
-const STATUS_COLOR = { online: "#34d399", away: "#fbbf24", offline: "#6b7280" };
-
 export default function Sidebar({ role, page, setPage, setView }) {
   const nav = role === "doctor" ? DOCTOR_NAV : USER_NAV;
   const [assessOpen, setAssessOpen] = useState(
     ["assessments","speech","memory","reaction","stroop","tap"].includes(page)
   );
-  const [communityOpen, setCommunityOpen] = useState(false);
 
   return (
     <div style={{
@@ -59,11 +43,9 @@ export default function Sidebar({ role, page, setPage, setView }) {
       display: "flex", flexDirection: "column",
       position: "fixed", left: 0, top: 0, bottom: 0, zIndex: 100,
       boxShadow: "4px 0 30px rgba(0,0,0,0.4)",
-      overflow: "hidden",
     }}>
-      {/* Logo */}
       <div
-        style={{ padding: "28px 24px 20px", borderBottom: "1px solid rgba(255,255,255,0.07)", cursor: "pointer", flexShrink: 0 }}
+        style={{ padding: "28px 24px 20px", borderBottom: "1px solid rgba(255,255,255,0.07)", cursor: "pointer" }}
         onClick={() => setView("landing")}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -72,13 +54,7 @@ export default function Sidebar({ role, page, setPage, setView }) {
         </div>
       </div>
 
-      {/* Scrollable nav */}
-      <nav style={{
-        flex: 1, padding: "16px 12px",
-        display: "flex", flexDirection: "column", gap: 2,
-        overflowY: "auto", overflowX: "hidden",
-        scrollbarWidth: "thin", scrollbarColor: "rgba(255,255,255,0.08) transparent",
-      }}>
+      <nav style={{ flex: 1, padding: "16px 12px", display: "flex", flexDirection: "column", gap: 2, overflowY: "auto" }}>
         {nav.map((item) => {
           if (item.children) {
             const anyChildActive = item.children.some(c => c.id === page);
@@ -87,7 +63,10 @@ export default function Sidebar({ role, page, setPage, setView }) {
             return (
               <div key={item.id}>
                 <button
-                  onClick={() => { setAssessOpen(o => !o); if (!anyChildActive) setPage(item.id); }}
+                  onClick={() => {
+                    setAssessOpen(o => !o);
+                    if (!anyChildActive) setPage(item.id);
+                  }}
                   style={{
                     width: "100%", display: "flex", alignItems: "center", gap: 10,
                     padding: "10px 14px", borderRadius: 12,
@@ -104,21 +83,33 @@ export default function Sidebar({ role, page, setPage, setView }) {
                     <span style={{ fontSize: 14, width: 18 }}>{item.icon}</span>
                     {item.label}
                   </span>
-                  <span style={{ fontSize: 10, color: groupActive ? T.red : "rgba(255,255,255,0.25)", transition: "transform 0.2s", transform: assessOpen ? "rotate(90deg)" : "none", display: "inline-block" }}>▶</span>
+                  <span style={{
+                    fontSize: 10, color: groupActive ? T.red : "rgba(255,255,255,0.25)",
+                    transition: "transform 0.2s",
+                    transform: assessOpen ? "rotate(90deg)" : "none",
+                    display: "inline-block",
+                  }}>▶</span>
                 </button>
+
                 {assessOpen && (
                   <div style={{ marginLeft: 12, marginTop: 2, display: "flex", flexDirection: "column", gap: 1 }}>
                     {item.children.map(child => {
                       const active = page === child.id;
                       return (
-                        <button key={child.id} onClick={() => setPage(child.id)} style={{
-                          display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", borderRadius: 10,
-                          border: active ? "1px solid " + LIME + "30" : "1px solid transparent",
-                          background: active ? LIME + "12" : "transparent",
-                          color: active ? LIME : "rgba(255,255,255,0.35)",
-                          fontWeight: active ? 600 : 400, fontSize: 12.5, cursor: "pointer", textAlign: "left",
-                          transition: "all 0.15s", fontFamily: "'DM Sans',sans-serif",
-                        }}>
+                        <button
+                          key={child.id}
+                          onClick={() => setPage(child.id)}
+                          style={{
+                            display: "flex", alignItems: "center", gap: 8,
+                            padding: "8px 12px", borderRadius: 10,
+                            border: active ? "1px solid " + LIME + "30" : "1px solid transparent",
+                            background: active ? LIME + "12" : "transparent",
+                            color: active ? LIME : "rgba(255,255,255,0.35)",
+                            fontWeight: active ? 600 : 400,
+                            fontSize: 12.5, cursor: "pointer", textAlign: "left",
+                            transition: "all 0.15s", fontFamily: "'DM Sans',sans-serif",
+                          }}
+                        >
                           <span style={{ fontSize: 12, width: 18 }}>{child.icon}</span>
                           {child.label}
                         </button>
@@ -132,89 +123,28 @@ export default function Sidebar({ role, page, setPage, setView }) {
 
           const active = page === item.id;
           return (
-            <button key={item.id} onClick={() => setPage(item.id)} style={{
-              display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 12,
-              border: active ? "1px solid rgba(232,64,64,0.25)" : "1px solid transparent",
-              background: active ? "rgba(232,64,64,0.13)" : "transparent",
-              backdropFilter: active ? "blur(8px)" : "none",
-              color: active ? T.red : T.creamFaint,
-              fontWeight: active ? 600 : 400, fontSize: 13.5, cursor: "pointer", textAlign: "left",
-              transition: "all 0.15s", fontFamily: "'DM Sans',sans-serif", width: "100%",
-            }}>
+            <button
+              key={item.id}
+              onClick={() => setPage(item.id)}
+              style={{
+                display: "flex", alignItems: "center", gap: 10, padding: "10px 14px", borderRadius: 12,
+                border: active ? "1px solid rgba(232,64,64,0.25)" : "1px solid transparent",
+                background: active ? "rgba(232,64,64,0.13)" : "transparent",
+                backdropFilter: active ? "blur(8px)" : "none",
+                color: active ? T.red : T.creamFaint,
+                fontWeight: active ? 600 : 400,
+                fontSize: 13.5, cursor: "pointer", textAlign: "left",
+                transition: "all 0.15s", fontFamily: "'DM Sans',sans-serif",
+              }}
+            >
               <span style={{ fontSize: 14, width: 18 }}>{item.icon}</span>
               {item.label}
             </button>
           );
         })}
-
-        {/* ── Community Section (Discord-style) ── */}
-        {role !== "doctor" && (
-          <>
-            <div style={{ height: 1, background: "rgba(255,255,255,0.07)", margin: "10px 0 8px" }} />
-            <div style={{ padding: "0 14px 6px", fontSize: 10, color: "rgba(255,255,255,0.25)", letterSpacing: 1.2, textTransform: "uppercase", fontWeight: 700 }}>Community</div>
-
-            <button
-              onClick={() => { setPage("community"); setCommunityOpen(o => !o); }}
-              style={{
-                width: "100%", display: "flex", alignItems: "center", gap: 10,
-                padding: "10px 14px", borderRadius: 12,
-                border: page === "community" ? `1px solid ${INDIGO}30` : "1px solid transparent",
-                background: page === "community" ? `${INDIGO}14` : "transparent",
-                color: page === "community" ? INDIGO : T.creamFaint,
-                fontWeight: page === "community" ? 600 : 400,
-                fontSize: 13.5, cursor: "pointer", textAlign: "left",
-                transition: "all 0.15s", fontFamily: "'DM Sans',sans-serif",
-                justifyContent: "space-between",
-              }}
-            >
-              <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{ fontSize: 14, width: 18 }}>🌐</span>
-                # general
-              </span>
-              <span style={{ fontSize: 10, color: page === "community" ? INDIGO : "rgba(255,255,255,0.25)", transition: "transform 0.2s", transform: communityOpen ? "rotate(90deg)" : "none", display: "inline-block" }}>▶</span>
-            </button>
-
-            {communityOpen && (
-              <div style={{ marginLeft: 4, marginTop: 2, marginBottom: 4 }}>
-                <div style={{ padding: "4px 12px 6px", fontSize: 10, color: "rgba(255,255,255,0.2)", letterSpacing: 0.8, fontWeight: 600 }}>
-                  ONLINE — {COMMUNITY_MEMBERS.filter(m => m.status === "online").length}
-                </div>
-                {COMMUNITY_MEMBERS.map(member => (
-                  <div key={member.id} style={{
-                    display: "flex", alignItems: "center", gap: 8, padding: "5px 10px", borderRadius: 8,
-                    cursor: "default", opacity: member.status === "offline" ? 0.4 : 1,
-                  }}
-                    onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
-                    onMouseLeave={e => e.currentTarget.style.background = "transparent"}
-                  >
-                    <div style={{
-                      width: 24, height: 24, borderRadius: "50%",
-                      background: `linear-gradient(135deg, ${INDIGO}33, rgba(99,102,241,0.15))`,
-                      border: `1px solid ${INDIGO}25`,
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      fontSize: 9, color: INDIGO, fontWeight: 700, flexShrink: 0,
-                      position: "relative",
-                    }}>
-                      {member.name.charAt(0)}
-                      <span style={{
-                        position: "absolute", bottom: -1, right: -1,
-                        width: 7, height: 7, borderRadius: "50%",
-                        background: STATUS_COLOR[member.status],
-                        border: "1.5px solid rgba(6,6,10,0.9)",
-                      }} />
-                    </div>
-                    <span style={{ fontSize: 12, color: "rgba(255,255,255,0.5)", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {member.name}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </>
-        )}
       </nav>
 
-      <div style={{ padding: "16px 24px", borderTop: "1px solid rgba(255,255,255,0.06)", flexShrink: 0 }}>
+      <div style={{ padding: "16px 24px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
         <button
           onClick={() => setView("landing")}
           style={{ background: "transparent", border: "none", color: T.creamFaint, fontSize: 13, cursor: "pointer", fontFamily: "'DM Sans',sans-serif" }}
@@ -225,3 +155,5 @@ export default function Sidebar({ role, page, setPage, setView }) {
     </div>
   );
 }
+
+

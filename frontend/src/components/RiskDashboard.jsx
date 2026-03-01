@@ -1,12 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { T } from "../utils/theme";
 import NeuroBot from "./NeuroBot";
-import { GAMES } from "../utils/gamesCatalog";
-import { getUnreadCount } from "../services/api";
-import { setCommunityPresence, subscribeCommunityMembers } from "../services/community";
 
 const LIME = "#C8F135";
-const COMMUNITY_STATUS_COLOR = { online: "#34d399", away: "#fbbf24", offline: "#6b7280" };
 
 function seededUnit(seed) {
   const value = Math.sin(seed * 12.9898 + 78.233) * 43758.5453123;
@@ -200,35 +196,30 @@ export function MiniChart({ data, color = LIME, height = 60 }) {
 export function Sidebar({ role, page, setPage, setView, onLogout, isMobile = false, mobileOpen = false, onClose }) {
   const storedUser = (() => { try { const u = sessionStorage.getItem("neuroaid_user"); return u ? JSON.parse(u) : null; } catch { return null; } })();
   const displayName = storedUser?.full_name || (role === "doctor" ? "Doctor" : "Patient");
-  const initials = displayName.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
+  const initials = displayName.split(" ").map(w => w[0]).join("").slice(0,2).toUpperCase();
   const [unread, setUnread] = useState(0);
-  const [communityOpen, setCommunityOpen] = useState(() => page === "community");
-  const [communityMembers, setCommunityMembers] = useState([]);
-
   const userTests = ["speech", "memory", "reaction", "stroop", "tap"];
-  const userGames = GAMES.map(g => g.id);
-  const userGameItems = GAMES.map(g => ({ id: g.id, label: g.title, icon: "G" }));
-
   const [assessmentsOpen, setAssessmentsOpen] = useState(() => page === "assessments" || userTests.includes(page));
-  const [gamesOpen, setGamesOpen] = useState(() => page === "games" || page === "game-results" || userGames.includes(page));
 
   useEffect(() => {
     let alive = true;
-    const refreshUnread = () => {
-      getUnreadCount()
-        .then(n => {
-          if (alive) setUnread(n || 0);
-        })
-        .catch(() => {});
-    };
+    let iv = null;
+    let refreshUnread = () => {};
 
-    refreshUnread();
-    const iv = setInterval(refreshUnread, 8000);
-    window.addEventListener("neuroaid:messages-read", refreshUnread);
+    import("../services/api").then(({ getUnreadCount }) => {
+      refreshUnread = () => {
+        getUnreadCount().then(n => {
+          if (alive) setUnread(n || 0);
+        }).catch(() => {});
+      };
+      refreshUnread();
+      iv = setInterval(refreshUnread, 8000);
+      window.addEventListener("neuroaid:messages-read", refreshUnread);
+    });
 
     return () => {
       alive = false;
-      clearInterval(iv);
+      if (iv) clearInterval(iv);
       window.removeEventListener("neuroaid:messages-read", refreshUnread);
     };
   }, []);
@@ -236,46 +227,33 @@ export function Sidebar({ role, page, setPage, setView, onLogout, isMobile = fal
   useEffect(() => {
     if (role === "doctor") return;
     if (page === "assessments" || userTests.includes(page)) setAssessmentsOpen(true);
-    if (page === "games" || page === "game-results" || userGames.includes(page)) setGamesOpen(true);
-    if (page === "community") setCommunityOpen(true);
   }, [page, role]);
 
-  useEffect(() => {
-    if (role === "doctor") return undefined;
-    const unsub = subscribeCommunityMembers(setCommunityMembers);
-    setCommunityPresence("online").catch(() => {});
-    return () => {
-      unsub();
-      setCommunityPresence("away").catch(() => {});
-    };
-  }, [role]);
-
   const uNav = [
-    { id: "dashboard",   label: "Overview",    icon: "O" },
-    { id: "assessments", label: "Assessments", icon: "A" },
-    { id: "games",       label: "Games",       icon: "G" },
-    { id: "results",     label: "Results",     icon: "R" },
-    { id: "progress",    label: "Progress",    icon: "P" },
-    { id: "messages",    label: "Messages",    icon: "M", badge: unread },
+    { id: "dashboard",   label: "Overview",    icon: "◆" },
+    { id: "assessments", label: "Assessments", icon: "◉" },
+    { id: "results",     label: "Results",     icon: "◆" },
+    { id: "progress",    label: "Progress",    icon: "↗" },
+    { id: "messages",    label: "Messages",    icon: "✉", badge: unread },
+    { id: "doctors",     label: "My Doctor",   icon: "🩺", accent: true },
   ];
 
   const userAssessmentTests = [
-    { id: "speech",   label: "Speech Test",   icon: "S" },
-    { id: "memory",   label: "Memory Test",   icon: "M" },
-    { id: "reaction", label: "Reaction Test", icon: "R" },
-    { id: "stroop",   label: "Stroop Test",   icon: "E" },
-    { id: "tap",      label: "Motor Tap",     icon: "T" },
+    { id: "speech",   label: "Speech Test",   icon: "◎" },
+    { id: "memory",   label: "Memory Test",   icon: "⬡" },
+    { id: "reaction", label: "Reaction Test", icon: "◷" },
+    { id: "stroop",   label: "Stroop Test",   icon: "◐" },
+    { id: "tap",      label: "Motor Tap",     icon: "●" },
   ];
 
   const dNav = [
-    { id: "doctor-dashboard", label: "Dashboard", icon: "D" },
-    { id: "patients",         label: "Patients",  icon: "P" },
-    { id: "messages",         label: "Messages",  icon: "M", badge: unread },
-    { id: "content",          label: "Content",   icon: "C" },
+    { id: "doctor-dashboard", label: "Dashboard", icon: "◆" },
+    { id: "patients",         label: "Patients",  icon: "◉" },
+    { id: "messages",         label: "Messages",  icon: "✉", badge: unread },
+    { id: "content",          label: "Content",   icon: "✎" },
   ];
 
   const nav = role === "doctor" ? dNav : uNav;
-  const onlineCommunityMembers = communityMembers.filter((m) => m.status === "online");
 
   function handleNavClick(nextPage) {
     setPage(nextPage);
@@ -310,13 +288,11 @@ export function Sidebar({ role, page, setPage, setView, onLogout, isMobile = fal
     }}>
       <div style={{ position:"absolute", bottom:0, left:0, right:0, height:"35%", background:`radial-gradient(ellipse 120% 60% at 50% 120%, ${LIME}1A 0%, transparent 70%)`, pointerEvents:"none" }} />
 
-      <div style={{ padding:"28px 22px 20px", borderBottom:"1px solid rgba(255,255,255,0.06)", cursor:"pointer", position:"relative", zIndex:2 }} onClick={handleLogoClick} title="Go to dashboard">
+      <div style={{ padding:"28px 22px 20px", borderBottom:"1px solid rgba(255,255,255,0.06)", cursor:"pointer", position:"relative", zIndex:2 }}
+        onClick={handleLogoClick}
+        title="Go to dashboard">
         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-          <img
-            src="/logo-brain.svg"
-            alt="MindSaathi logo"
-            style={{ width:32, height:32, borderRadius:9, display:"block", boxShadow:`0 0 16px ${LIME}44` }}
-          />
+          <div style={{ width:32, height:32, borderRadius:9, background:`linear-gradient(135deg,${LIME},#9ABF28)`, display:"flex", alignItems:"center", justifyContent:"center", fontWeight:900, fontSize:14, color:"#080808", boxShadow:`0 0 16px ${LIME}44` }}>N</div>
           <span style={{ fontFamily:"'DM Sans',sans-serif", fontWeight:900, fontSize:18, color:"#fff", letterSpacing:-0.5 }}>MindSaathi</span>
         </div>
       </div>
@@ -324,28 +300,53 @@ export function Sidebar({ role, page, setPage, setView, onLogout, isMobile = fal
       <nav style={{ flex:1, padding:"14px 10px", display:"flex", flexDirection:"column", gap:2, position:"relative", zIndex:2 }}>
         {nav.map(item => {
           const isAssessmentsParent = role !== "doctor" && item.id === "assessments";
-          const isGamesParent = role !== "doctor" && item.id === "games";
           const isActive = isAssessmentsParent
             ? (page === "assessments" || userTests.includes(page))
-            : isGamesParent
-              ? (page === "games" || page === "game-results" || userGames.includes(page))
-              : page === item.id;
+            : page === item.id;
           const hasBadge = item.badge && item.badge > 0;
 
           if (isAssessmentsParent) {
             return (
               <div key={item.id}>
-                <button onClick={() => { handleNavClick("assessments"); setAssessmentsOpen(v => !v); }} style={{ width:"100%", display:"flex", alignItems:"center", gap:10, padding:"10px 14px", borderRadius:12, border:isActive ? `1px solid ${LIME}33` : "1px solid transparent", background:isActive ? `rgba(200,241,53,0.10)` : "transparent", color:isActive ? LIME : "#555", fontWeight:isActive ? 700 : 400, fontSize:13.5, cursor:"pointer", textAlign:"left", transition:"all 0.15s", fontFamily:"'DM Sans',sans-serif", boxShadow:isActive ? `0 0 20px ${LIME}12` : "none" }}>
+                <button
+                  onClick={() => {
+                    handleNavClick("assessments");
+                    setAssessmentsOpen(v => !v);
+                  }}
+                  style={{
+                    width:"100%",
+                    display:"flex", alignItems:"center", gap:10, padding:"10px 14px",
+                    borderRadius:12, border:isActive ? `1px solid ${LIME}33` : "1px solid transparent",
+                    background:isActive ? `rgba(200,241,53,0.10)` : "transparent",
+                    color:isActive ? LIME : "#555",
+                    fontWeight:isActive ? 700 : 400, fontSize:13.5, cursor:"pointer",
+                    textAlign:"left", transition:"all 0.15s",
+                    fontFamily:"'DM Sans',sans-serif",
+                    boxShadow:isActive ? `0 0 20px ${LIME}12` : "none",
+                  }}
+                >
                   <span style={{ fontSize:14, width:18 }}>{item.icon}</span>
                   <span style={{ flex:1 }}>{item.label}</span>
-                  <span style={{ fontSize:10, opacity:0.75, transform: assessmentsOpen ? "rotate(180deg)" : "rotate(0deg)", transition:"transform 0.2s" }}>v</span>
+                  <span style={{ fontSize:10, opacity:0.75, transform: assessmentsOpen ? "rotate(180deg)" : "rotate(0deg)", transition:"transform 0.2s" }}>▾</span>
                 </button>
                 {assessmentsOpen && (
                   <div style={{ marginTop:2, marginBottom:4, paddingLeft:18, display:"flex", flexDirection:"column", gap:2 }}>
                     {userAssessmentTests.map(test => {
                       const testActive = page === test.id;
                       return (
-                        <button key={test.id} onClick={() => handleNavClick(test.id)} style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 12px", borderRadius:10, border:testActive ? `1px solid ${LIME}22` : "1px solid transparent", background:testActive ? `rgba(200,241,53,0.08)` : "transparent", color:testActive ? LIME : "#555", fontWeight:testActive ? 700 : 400, fontSize:13, cursor:"pointer", textAlign:"left", transition:"all 0.15s", fontFamily:"'DM Sans',sans-serif" }}>
+                        <button
+                          key={test.id}
+                          onClick={() => handleNavClick(test.id)}
+                          style={{
+                            display:"flex", alignItems:"center", gap:10, padding:"9px 12px",
+                            borderRadius:10, border:testActive ? `1px solid ${LIME}22` : "1px solid transparent",
+                            background:testActive ? `rgba(200,241,53,0.08)` : "transparent",
+                            color:testActive ? LIME : "#555",
+                            fontWeight:testActive ? 700 : 400, fontSize:13, cursor:"pointer",
+                            textAlign:"left", transition:"all 0.15s",
+                            fontFamily:"'DM Sans',sans-serif",
+                          }}
+                        >
                           <span style={{ fontSize:13, width:18 }}>{test.icon}</span>
                           <span style={{ flex:1 }}>{test.label}</span>
                         </button>
@@ -357,92 +358,53 @@ export function Sidebar({ role, page, setPage, setView, onLogout, isMobile = fal
             );
           }
 
-          if (isGamesParent) {
+          // My Doctor — special blue accent
+          if (item.accent) {
+            const BLU = "#60a5fa";
             return (
-              <div key={item.id}>
-                <button onClick={() => { handleNavClick("games"); setGamesOpen(v => !v); }} style={{ width:"100%", display:"flex", alignItems:"center", gap:10, padding:"10px 14px", borderRadius:12, border:isActive ? `1px solid ${LIME}33` : "1px solid transparent", background:isActive ? `rgba(200,241,53,0.10)` : "transparent", color:isActive ? LIME : "#555", fontWeight:isActive ? 700 : 400, fontSize:13.5, cursor:"pointer", textAlign:"left", transition:"all 0.15s", fontFamily:"'DM Sans',sans-serif", boxShadow:isActive ? `0 0 20px ${LIME}12` : "none" }}>
-                  <span style={{ fontSize:14, width:18 }}>{item.icon}</span>
-                  <span style={{ flex:1 }}>{item.label}</span>
-                  <span style={{ fontSize:10, opacity:0.75, transform: gamesOpen ? "rotate(180deg)" : "rotate(0deg)", transition:"transform 0.2s" }}>v</span>
-                </button>
-                {gamesOpen && (
-                  <div style={{ marginTop:2, marginBottom:4, paddingLeft:18, display:"flex", flexDirection:"column", gap:2 }}>
-                    {userGameItems.map(game => {
-                      const gameActive = page === game.id;
-                      return (
-                        <button key={game.id} onClick={() => handleNavClick(game.id)} style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 12px", borderRadius:10, border:gameActive ? `1px solid ${LIME}22` : "1px solid transparent", background:gameActive ? `rgba(200,241,53,0.08)` : "transparent", color:gameActive ? LIME : "#555", fontWeight:gameActive ? 700 : 400, fontSize:12.5, cursor:"pointer", textAlign:"left", transition:"all 0.15s", fontFamily:"'DM Sans',sans-serif" }} title={game.label}>
-                          <span style={{ fontSize:12, width:18 }}>{game.icon}</span>
-                          <span style={{ flex:1, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{game.label}</span>
-                        </button>
-                      );
-                    })}
-                    <button onClick={() => handleNavClick("game-results")} style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 12px", borderRadius:10, border:page === "game-results" ? `1px solid ${LIME}22` : "1px solid transparent", background:page === "game-results" ? `rgba(200,241,53,0.08)` : "transparent", color:page === "game-results" ? LIME : "#555", fontWeight:page === "game-results" ? 700 : 400, fontSize:12.5, cursor:"pointer", textAlign:"left", transition:"all 0.15s", fontFamily:"'DM Sans',sans-serif" }}>
-                      <span style={{ fontSize:12, width:18 }}>R</span>
-                      <span style={{ flex:1 }}>Games Results</span>
-                    </button>
-                  </div>
-                )}
-              </div>
+              <button key={item.id} onClick={() => handleNavClick(item.id)} style={{
+                display:"flex", alignItems:"center", gap:10, padding:"11px 14px",
+                borderRadius:12,
+                border: isActive ? `1px solid ${BLU}50` : `1px solid ${BLU}18`,
+                background: isActive ? `rgba(96,165,250,0.15)` : `rgba(96,165,250,0.06)`,
+                color: isActive ? BLU : `rgba(96,165,250,0.75)`,
+                fontWeight: isActive ? 700 : 500, fontSize:13.5, cursor:"pointer",
+                textAlign:"left", transition:"all 0.15s",
+                fontFamily:"'DM Sans',sans-serif",
+                boxShadow: isActive ? `0 0 16px rgba(96,165,250,0.18)` : "none",
+                width:"100%",
+              }}>
+                <span style={{ fontSize:14, width:18 }}>{item.icon}</span>
+                <span style={{ flex:1 }}>{item.label}</span>
+              </button>
             );
           }
 
           return (
-            <button key={item.id} onClick={() => handleNavClick(item.id)} style={{ display:"flex", alignItems:"center", gap:10, padding:"10px 14px", borderRadius:12, border:isActive ? `1px solid ${LIME}33` : "1px solid transparent", background:isActive ? `rgba(200,241,53,0.10)` : "transparent", color:isActive ? LIME : "#555", fontWeight:isActive ? 700 : 400, fontSize:13.5, cursor:"pointer", textAlign:"left", transition:"all 0.15s", fontFamily:"'DM Sans',sans-serif", boxShadow:isActive ? `0 0 20px ${LIME}12` : "none" }}>
+            <button key={item.id} onClick={() => handleNavClick(item.id)} style={{
+              display:"flex", alignItems:"center", gap:10, padding:"10px 14px",
+              borderRadius:12, border:isActive ? `1px solid ${LIME}33` : "1px solid transparent",
+              background:isActive ? `rgba(200,241,53,0.10)` : "transparent",
+              color:isActive ? LIME : "#555",
+              fontWeight:isActive ? 700 : 400, fontSize:13.5, cursor:"pointer",
+              textAlign:"left", transition:"all 0.15s",
+              fontFamily:"'DM Sans',sans-serif",
+              boxShadow:isActive ? `0 0 20px ${LIME}12` : "none",
+            }}>
               <span style={{ fontSize:14, width:18 }}>{item.icon}</span>
               <span style={{ flex:1 }}>{item.label}</span>
               {hasBadge ? (
-                <span style={{ minWidth:18, height:18, borderRadius:999, padding:"0 6px", background:`${LIME}22`, border:`1px solid ${LIME}66`, color:LIME, fontSize:10, fontWeight:800, display:"inline-flex", alignItems:"center", justifyContent:"center" }}>
+                <span style={{
+                  minWidth:18, height:18, borderRadius:999, padding:"0 6px",
+                  background:`${LIME}22`, border:`1px solid ${LIME}66`, color:LIME,
+                  fontSize:10, fontWeight:800, display:"inline-flex", alignItems:"center", justifyContent:"center",
+                }}>
                   {item.badge}
                 </span>
               ) : null}
             </button>
           );
         })}
-
-        {role !== "doctor" && (
-          <div style={{ marginTop: 8 }}>
-            <div style={{ height: 1, background: "rgba(255,255,255,0.07)", margin: "8px 6px" }} />
-            <button
-              onClick={() => { handleNavClick("community"); setCommunityOpen((v) => !v); }}
-              style={{
-                width: "100%", display: "flex", alignItems: "center", gap: 10, padding: "10px 14px",
-                borderRadius: 12, border: page === "community" ? `1px solid ${LIME}33` : "1px solid transparent",
-                background: page === "community" ? "rgba(200,241,53,0.10)" : "transparent",
-                color: page === "community" ? LIME : "#555", fontWeight: page === "community" ? 700 : 400,
-                fontSize: 13.5, cursor: "pointer", textAlign: "left", transition: "all 0.15s",
-                fontFamily: "'DM Sans',sans-serif",
-              }}
-            >
-              <span style={{ fontSize: 14, width: 18 }}>C</span>
-              <span style={{ flex: 1 }}>Community</span>
-              <span style={{ fontSize: 10, opacity: 0.75 }}>{onlineCommunityMembers.length}</span>
-              <span style={{ fontSize: 10, opacity: 0.75, transform: communityOpen ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}>v</span>
-            </button>
-
-            {communityOpen && (
-              <div style={{ marginTop: 2, marginBottom: 4, paddingLeft: 18, display: "flex", flexDirection: "column", gap: 2 }}>
-                {onlineCommunityMembers.slice(0, 5).map((member) => (
-                  <div key={member.id} style={{
-                    display: "flex", alignItems: "center", gap: 8, padding: "7px 10px", borderRadius: 10,
-                    background: "rgba(255,255,255,0.02)",
-                  }}>
-                    <span style={{
-                      width: 8, height: 8, borderRadius: "50%",
-                      background: COMMUNITY_STATUS_COLOR[member.status] || COMMUNITY_STATUS_COLOR.online,
-                      display: "inline-block", flexShrink: 0,
-                    }} />
-                    <span style={{ flex: 1, fontSize: 12, color: "rgba(255,255,255,0.58)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                      {member.name}
-                    </span>
-                  </div>
-                ))}
-                {onlineCommunityMembers.length === 0 ? (
-                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.28)", padding: "6px 10px" }}>No one online yet</div>
-                ) : null}
-              </div>
-            )}
-          </div>
-        )}
       </nav>
 
       <div style={{ padding:"16px 22px", borderTop:"1px solid rgba(255,255,255,0.05)", position:"relative", zIndex:2 }}>
@@ -453,7 +415,10 @@ export function Sidebar({ role, page, setPage, setView, onLogout, isMobile = fal
             <div style={{ fontSize:10, color:"#555", textTransform:"uppercase", letterSpacing:1 }}>{role === "doctor" ? "Doctor" : "Patient"}</div>
           </div>
         </div>
-        <button onClick={handleSignOut} style={{ background:"transparent", border:"none", color:"#444", fontSize:13, cursor:"pointer", fontFamily:"'DM Sans',sans-serif", transition:"color 0.2s" }} onMouseEnter={e => e.target.style.color = LIME} onMouseLeave={e => e.target.style.color = "#444"}>{"<-"} Sign out</button>
+        <button onClick={handleSignOut} style={{ background:"transparent", border:"none", color:"#444", fontSize:13, cursor:"pointer", fontFamily:"'DM Sans',sans-serif", transition:"color 0.2s" }}
+          onMouseEnter={e => e.target.style.color = LIME}
+          onMouseLeave={e => e.target.style.color = "#444"}
+        >{"<-"} Sign out</button>
       </div>
     </div>
   );
@@ -510,8 +475,6 @@ export function Shell({ role, page, setPage, setView, children, onLogout }) {
   const ghostLabels = {
     dashboard:        "OVERVIEW",
     assessments:      "ASSESS",
-    games:            "GAMES",
-    "game-results":   "GAMES",
     speech:           "SPEECH",
     memory:           "MEMORY",
     reaction:         "REACT",
@@ -519,11 +482,11 @@ export function Shell({ role, page, setPage, setView, children, onLogout }) {
     tap:              "MOTOR",
     results:          "RESULTS",
     progress:         "PROGRESS",
-    community:        "COMMUNITY",
     "doctor-dashboard":"DOCTOR",
     patients:         "PATIENTS",
+    doctors:          "MY DOCTOR",
   };
-  const ghost = ghostLabels[page] || (GAMES.some(g => g.id === page) ? "GAMES" : "NEURO");
+  const ghost = ghostLabels[page] || "NEURO";
 
   return (
     <div style={{ display:"flex", minHeight:"100vh", background:"#080808" }}>
@@ -604,6 +567,3 @@ export function Shell({ role, page, setPage, setView, children, onLogout }) {
     </div>
   );
 }
-
-
-
