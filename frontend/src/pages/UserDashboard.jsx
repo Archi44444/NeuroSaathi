@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { T } from "../utils/theme";
 import { DarkCard, Btn, Badge, MiniChart } from "../components/RiskDashboard";
+import NearestDoctorFinder from "../components/NearestDoctorFinder";
 import { getUser, getMyResults, getDoctors } from "../services/api";
 import { useAssessment } from "../context/AssessmentContext";
 import { submitAnalysis } from "../services/api";
@@ -234,7 +235,7 @@ function AssessmentPanel({ setPage }) {
 ───────────────────────────────────────────── */
 const SPEC_FILTERS = ["All", "Neurology", "Geriatrics", "Neuropsychology", "Psychiatry", "Other"];
 
-function DoctorPanel() {
+function DoctorPanel({ lastResult, geminiApiKey }) {
   const [doctors,      setDoctors]      = useState([]);
   const [myDoctor,     setMyDoctor]     = useState(null);
   const [pendingId,    setPendingId]    = useState(null);
@@ -286,6 +287,7 @@ function DoctorPanel() {
   if (myDoctor) {
     return (
       <div>
+        <NearestDoctorFinder lastResult={lastResult} geminiApiKey={geminiApiKey} />
         <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 16px", borderRadius: 14, background: `${LIME}08`, border: `1px solid ${LIME}22` }}>
           <div style={{ width: 46, height: 46, borderRadius: "50%", background: `${LIME}18`, border: `2px solid ${LIME}33`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, color: LIME, fontWeight: 800, flexShrink: 0 }}>
             {(myDoctor.full_name?.[0] || "D").toUpperCase()}
@@ -312,6 +314,8 @@ function DoctorPanel() {
 
   return (
     <div>
+      <NearestDoctorFinder lastResult={lastResult} geminiApiKey={geminiApiKey} />
+
       {msg && (
         <div style={{ marginBottom: 12, padding: "8px 14px", borderRadius: 10, background: msg.includes("sent") ? `${LIME}08` : "rgba(232,64,64,0.08)", border: `1px solid ${msg.includes("sent") ? LIME + "22" : "rgba(232,64,64,0.2)"}`, color: msg.includes("sent") ? LIME : "#ff7070", fontSize: 12 }}>
           {msg.includes("sent") ? "✓ " : "⚠️ "}{msg}
@@ -391,6 +395,7 @@ function DoctorPanel() {
 export default function UserDashboard({ setPage }) {
   const user      = getUser();
   const firstName = user?.full_name?.split(" ")[0] || "there";
+  const geminiApiKey = import.meta.env.VITE_GEMINI_API_KEY;
   const [results,  setResults]  = useState([]);
   const [loading,  setLoading]  = useState(true);
   const [doctorInfo, setDoctorInfo] = useState({ doctor: null, pending_doctor: null });
@@ -491,10 +496,10 @@ export default function UserDashboard({ setPage }) {
             icon="🩺"
             badge={doctorBadge}
             badgeColor={doctorBadgeColor}
-            defaultOpen={false}
+            defaultOpen={true}
             accentColor={BLU}
           >
-            <DoctorPanel />
+            <DoctorPanel lastResult={last} geminiApiKey={geminiApiKey} />
           </CollapsibleSection>
 
           {/* ── Results (only if data exists) ── */}
