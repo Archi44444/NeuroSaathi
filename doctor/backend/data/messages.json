@@ -1,0 +1,92 @@
+[
+  {
+    "id": "81767fc6-38c0-4571-bbfe-1c0bf474981b",
+    "sender_id": "02ae631a-42f8-41fe-9efd-490ecf3f5615",
+    "sender_name": "Archita",
+    "sender_role": "patient",
+    "recipient_id": "ad6939f0-a9e6-43ef-aebd-d202ba696bf3",
+    "text": "hi",
+    "timestamp": "2026-02-28T08:17:36.784943",
+    "deleted_by": [],
+    "read_by": [
+      "ad6939f0-a9e6-43ef-aebd-d202ba696bf3"
+    ]
+  },
+  {
+    "id": "50fa835b-c64a-4c12-98f7-cedd06cf6271",
+    "sender_id": "ad6939f0-a9e6-43ef-aebd-d202ba696bf3",
+    "sender_name": "AM",
+    "sender_role": "doctor",
+    "recipient_id": "02ae631a-42f8-41fe-9efd-490ecf3f5615",
+    "text": "hi",
+    "timestamp": "2026-02-28T08:17:58.076951",
+    "deleted_by": [],
+    "read_by": [
+      "02ae631a-42f8-41fe-9efd-490ecf3f5615"
+    ]
+  },
+  {
+    "id": "1a64ec1a-dee1-46bd-a4ea-bd161a4e528e",
+    "sender_id": "02ae631a-42f8-41fe-9efd-490ecf3f5615",
+    "sender_name": "Archita",
+    "sender_role": "patient",
+    "recipient_id": "ad6939f0-a9e6-43ef-aebd-d202ba696bf3",
+    "text": "hi",
+    "timestamp": "2026-02-28T10:45:10.557371",
+    "read_by": [
+      "02ae631a-42f8-41fe-9efd-490ecf3f5615",
+      "ad6939f0-a9e6-43ef-aebd-d202ba696bf3"
+    ],
+    "deleted_by": [
+      "02ae631a-42f8-41fe-9efd-490ecf3f5615"
+    ]
+  },
+  {
+    "id": "2e862239-0e84-4de2-8b29-a5ac4d06b445",
+    "sender_id": "02ae631a-42f8-41fe-9efd-490ecf3f5615",
+    "sender_name": "Archita",
+    "sender_role": "patient",
+    "recipient_id": "ad6939f0-a9e6-43ef-aebd-d202ba696bf3",
+    "text": "hi",
+    "timestamp": "2026-02-28T10:45:22.792177",
+    "read_by": [
+      "02ae631a-42f8-41fe-9efd-490ecf3f5615",
+      "ad6939f0-a9e6-43ef-aebd-d202ba696bf3"
+    ],
+    "deleted_by": [
+      "02ae631a-42f8-41fe-9efd-490ecf3f5615"
+    ]
+  },
+  {
+    "id": "020eb95f-1f95-4c86-9404-ecdecbb3bfac",
+    "sender_id": "ad6939f0-a9e6-43ef-aebd-d202ba696bf3",
+    "sender_name": "AM",
+    "sender_role": "doctor",
+    "recipient_id": "02ae631a-42f8-41fe-9efd-490ecf3f5615",
+    "text": "hi",
+    "timestamp": "2026-02-28T10:48:30.532139",
+    "read_by": [
+      "ad6939f0-a9e6-43ef-aebd-d202ba696bf3",
+      "02ae631a-42f8-41fe-9efd-490ecf3f5615"
+    ],
+    "deleted_by": [
+      "ad6939f0-a9e6-43ef-aebd-d202ba696bf3"
+    ]
+  },
+  {
+    "id": "08f8e374-b356-4105-97fd-917ec5165568",
+    "sender_id": "ad6939f0-a9e6-43ef-aebd-d202ba696bf3",
+    "sender_name": "AM",
+    "sender_role": "doctor",
+    "recipient_id": "02ae631a-42f8-41fe-9efd-490ecf3f5615",
+    "text": "hi",
+    "timestamp": "2026-02-28T10:48:48.144207",
+    "read_by": [
+      "ad6939f0-a9e6-43ef-aebd-d202ba696bf3",
+      "02ae631a-42f8-41fe-9efd-490ecf3f5615"
+    ],
+    "deleted_by": [
+      "ad6939f0-a9e6-43ef-aebd-d202ba696bf3"
+    ]
+  }
+]

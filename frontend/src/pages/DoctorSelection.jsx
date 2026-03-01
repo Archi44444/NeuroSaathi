@@ -1,7 +1,4 @@
 import { useState, useEffect } from "react";
-import NearestDoctorFinder from "../components/NearestDoctorFinder";
-
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "";
 import { DarkCard, Btn } from "../components/RiskDashboard";
 import { getDoctors } from "../services/api";
 import { db } from "../firebase";
@@ -249,12 +246,8 @@ export default function DoctorSelection({ setPage }) {
       <div style={{ marginTop: 24, background: "rgba(96,165,250,0.05)", border: "1px solid rgba(96,165,250,0.15)", borderRadius: 12, padding: "14px 18px", fontSize: 12, color: "rgba(96,165,250,0.8)", lineHeight: 1.6 }}>
         ℹ️ After sending a request, your doctor must approve it. Once approved, your doctor can view your assessment results and neural pattern data.
       </div>
-
-      {/* ── AI-powered Nearest Neurologist Finder ── */}
-      <NearestDoctorFinder
-        lastResult={null}
-        geminiApiKey={GEMINI_API_KEY}
-      />
     </div>
   );
 }
+
+

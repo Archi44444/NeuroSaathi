@@ -7,8 +7,6 @@ import { submitAnalysis } from "../services/api";
 import { db } from "../firebase";
 import { collection, getDocs, setDoc, doc } from "firebase/firestore";
 
-// ── Gemini & Places API keys from environment ─────────────────────────────
-
 const LIME = "#C8F135";
 const RED  = "#e84040";
 const AMB  = "#f59e0b";
@@ -232,6 +230,162 @@ function AssessmentPanel({ setPage }) {
 }
 
 /* ─────────────────────────────────────────────
+   Inline Doctor Panel
+───────────────────────────────────────────── */
+const SPEC_FILTERS = ["All", "Neurology", "Geriatrics", "Neuropsychology", "Psychiatry", "Other"];
+
+function DoctorPanel() {
+  const [doctors,      setDoctors]      = useState([]);
+  const [myDoctor,     setMyDoctor]     = useState(null);
+  const [pendingId,    setPendingId]    = useState(null);
+  const [filter,       setFilter]       = useState("All");
+  const [enrolling,    setEnrolling]    = useState(null);
+  const [loadingDocs,  setLoadingDocs]  = useState(true);
+  const [msg,          setMsg]          = useState(null);
+
+  async function loadDoctors() {
+    setLoadingDocs(true);
+    try {
+      const [list, myData] = await Promise.all([
+        getDoctors(),
+        apiFetch("/auth/doctors/my-doctor"),
+      ]);
+      const doctorList = list || [];
+      setDoctors(doctorList);
+      setMyDoctor(myData?.doctor || null);
+      setPendingId(myData?.pending_doctor?.id || null);
+      // Sync doctors to Firebase for cross-device visibility
+      syncDoctorsToFirebase(doctorList);
+    } catch (e) {
+      // Backend unavailable — load from Firebase
+      try {
+        const fbDoctors = await loadDoctorsFromFirebase();
+        setDoctors(fbDoctors);
+      } catch (_) { setDoctors([]); }
+    } finally {
+      setLoadingDocs(false);
+    }
+  }
+
+  useEffect(() => { loadDoctors(); }, []);
+
+  async function handleEnroll(doctorId) {
+    setEnrolling(doctorId); setMsg(null);
+    try {
+      await apiFetch("/auth/doctors/enroll", "POST", { doctor_id: doctorId });
+      setPendingId(doctorId);
+      setMsg("Request sent! Waiting for doctor approval.");
+    } catch (e) {
+      setMsg(e.message);
+    } finally {
+      setEnrolling(null);
+    }
+  }
+
+  // If already has a doctor, show profile card
+  if (myDoctor) {
+    return (
+      <div>
+        <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 16px", borderRadius: 14, background: `${LIME}08`, border: `1px solid ${LIME}22` }}>
+          <div style={{ width: 46, height: 46, borderRadius: "50%", background: `${LIME}18`, border: `2px solid ${LIME}33`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, color: LIME, fontWeight: 800, flexShrink: 0 }}>
+            {(myDoctor.full_name?.[0] || "D").toUpperCase()}
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: 700, color: "#fff", fontSize: 14 }}>{myDoctor.full_name}</div>
+            <div style={{ fontSize: 12, color: "#666", marginTop: 2 }}>
+              {myDoctor.specialization || "Neurologist"}{myDoctor.hospital ? ` · ${myDoctor.hospital}` : ""}{myDoctor.location ? ` · ${myDoctor.location}` : ""}
+            </div>
+            {myDoctor.consultation_mode && (
+              <span style={{ display: "inline-block", marginTop: 4, background: "rgba(96,165,250,0.10)", color: BLU, border: "1px solid rgba(96,165,250,0.2)", borderRadius: 20, padding: "2px 9px", fontSize: 10, fontWeight: 600 }}>
+                {myDoctor.consultation_mode} Consult
+              </span>
+            )}
+          </div>
+          <span style={{ background: `${LIME}14`, color: LIME, border: `1px solid ${LIME}33`, borderRadius: 20, padding: "4px 12px", fontSize: 11, fontWeight: 700 }}>✓ Active</span>
+        </div>
+        <p style={{ marginTop: 10, fontSize: 11, color: "#555", lineHeight: 1.6 }}>Your doctor has access to your assessment data and neural pattern reports.</p>
+      </div>
+    );
+  }
+
+  const filtered = filter === "All" ? doctors : doctors.filter(d => (d.specialization || "").toLowerCase() === filter.toLowerCase());
+
+  return (
+    <div>
+      {msg && (
+        <div style={{ marginBottom: 12, padding: "8px 14px", borderRadius: 10, background: msg.includes("sent") ? `${LIME}08` : "rgba(232,64,64,0.08)", border: `1px solid ${msg.includes("sent") ? LIME + "22" : "rgba(232,64,64,0.2)"}`, color: msg.includes("sent") ? LIME : "#ff7070", fontSize: 12 }}>
+          {msg.includes("sent") ? "✓ " : "⚠️ "}{msg}
+        </div>
+      )}
+
+      {/* Specialty filter */}
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14 }}>
+        {SPEC_FILTERS.map(f => (
+          <button key={f} onClick={() => setFilter(f)} style={{ padding: "4px 12px", borderRadius: 20, border: `1px solid ${filter === f ? LIME + "44" : "rgba(255,255,255,0.10)"}`, background: filter === f ? `${LIME}12` : "transparent", color: filter === f ? LIME : "#666", fontSize: 11, fontWeight: filter === f ? 700 : 400, cursor: "pointer", fontFamily: "'DM Sans',sans-serif", transition: "all 0.15s" }}>
+            {f}
+          </button>
+        ))}
+      </div>
+
+      {loadingDocs ? (
+        <div style={{ color: "#555", fontSize: 13, padding: "16px 0", textAlign: "center" }}>Loading doctors…</div>
+      ) : filtered.length === 0 ? (
+        <div style={{ color: "#444", fontSize: 13, padding: "16px 0", textAlign: "center" }}>
+          {doctors.length === 0 ? "No doctors have registered yet." : `No doctors found for "${filter}"`}
+        </div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {filtered.map(doc => {
+            const isFull    = (doc.current_patients || 0) >= (doc.max_patients || 10);
+            const isPending = pendingId === doc.id;
+            const pct       = Math.round(((doc.current_patients || 0) / (doc.max_patients || 10)) * 100);
+
+            return (
+              <div key={doc.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 14px", borderRadius: 12, background: "rgba(255,255,255,0.03)", border: `1px solid ${isPending ? AMB + "25" : "rgba(255,255,255,0.06)"}`, opacity: isFull && !isPending ? 0.6 : 1 }}>
+                {/* Avatar */}
+                <div style={{ width: 38, height: 38, borderRadius: "50%", background: "rgba(96,165,250,0.12)", border: "1px solid rgba(96,165,250,0.25)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, color: BLU, fontWeight: 800, flexShrink: 0 }}>
+                  {(doc.full_name?.[0] || "D").toUpperCase()}
+                </div>
+                {/* Info */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontWeight: 700, color: "#fff", fontSize: 13 }}>{doc.full_name}</div>
+                  <div style={{ fontSize: 11, color: "#555", marginTop: 1 }}>
+                    {doc.specialization || "Neurologist"}{doc.hospital ? ` · ${doc.hospital}` : ""}
+                  </div>
+                  {/* Capacity bar */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 5 }}>
+                    <div style={{ height: 3, width: 60, borderRadius: 2, background: "rgba(255,255,255,0.07)" }}>
+                      <div style={{ height: "100%", width: `${pct}%`, background: isFull ? RED : LIME, borderRadius: 2 }} />
+                    </div>
+                    <span style={{ fontSize: 10, color: isFull ? RED : "#555" }}>{doc.current_patients || 0}/{doc.max_patients || 10}</span>
+                  </div>
+                </div>
+                {/* Action */}
+                <div style={{ flexShrink: 0 }}>
+                  {isPending ? (
+                    <span style={{ background: `${AMB}12`, color: AMB, border: `1px solid ${AMB}30`, borderRadius: 20, padding: "4px 12px", fontSize: 11, fontWeight: 700, whiteSpace: "nowrap" }}>⏳ Requested</span>
+                  ) : isFull ? (
+                    <span style={{ background: "rgba(232,64,64,0.10)", color: RED, border: "1px solid rgba(232,64,64,0.2)", borderRadius: 20, padding: "4px 12px", fontSize: 11, fontWeight: 700 }}>Full</span>
+                  ) : (
+                    <button onClick={() => handleEnroll(doc.id)} disabled={enrolling === doc.id} style={{ background: LIME, color: "#0a0a0a", border: "none", borderRadius: 20, padding: "5px 14px", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "'DM Sans',sans-serif", whiteSpace: "nowrap", opacity: enrolling === doc.id ? 0.6 : 1 }}>
+                      {enrolling === doc.id ? "…" : "Request →"}
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      <p style={{ marginTop: 12, fontSize: 11, color: "#444", lineHeight: 1.6 }}>
+        ℹ️ Enrollment requires doctor approval. Once approved, your doctor can monitor your neural pattern data.
+      </p>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────
    Main Dashboard
 ───────────────────────────────────────────── */
 export default function UserDashboard({ setPage }) {
@@ -239,7 +393,7 @@ export default function UserDashboard({ setPage }) {
   const firstName = user?.full_name?.split(" ")[0] || "there";
   const [results,  setResults]  = useState([]);
   const [loading,  setLoading]  = useState(true);
-
+  const [doctorInfo, setDoctorInfo] = useState({ doctor: null, pending_doctor: null });
   const [showHistory, setShowHistory] = useState(false);
 
   const { completedCount, savedResults, loadHistory, apiResult } = useAssessment();
@@ -251,6 +405,9 @@ export default function UserDashboard({ setPage }) {
       .catch(() => setResults([]))
       .finally(() => setLoading(false));
 
+    apiFetch("/auth/doctors/my-doctor")
+      .then(d => setDoctorInfo(d))
+      .catch(() => {});
 
     // Also load from Firebase (cross-device history)
     loadHistory().catch(() => {});
@@ -287,7 +444,9 @@ export default function UserDashboard({ setPage }) {
   const lastDate   = last ? new Date(last.timestamp).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : null;
   const riskLevel  = hasData ? (Object.values(last.risk_levels || {}).includes("High") ? "High" : Object.values(last.risk_levels || {}).includes("Moderate") ? "Moderate" : "Low") : null;
 
-
+  // Badge for doctor section
+  const doctorBadge = doctorInfo.pending_doctor ? "1 pending" : doctorInfo.doctor ? null : null;
+  const doctorBadgeColor = doctorInfo.pending_doctor ? AMB : LIME;
 
   // Assessment section defaults open if no data, closed if they have results
   const assessDefaultOpen = !hasData;
@@ -326,6 +485,17 @@ export default function UserDashboard({ setPage }) {
             <AssessmentPanel setPage={setPage} />
           </CollapsibleSection>
 
+          {/* ── Collapsible: My Doctor ── */}
+          <CollapsibleSection
+            title="My Doctor"
+            icon="🩺"
+            badge={doctorBadge}
+            badgeColor={doctorBadgeColor}
+            defaultOpen={false}
+            accentColor={BLU}
+          >
+            <DoctorPanel />
+          </CollapsibleSection>
 
           {/* ── Results (only if data exists) ── */}
           {hasData && (
@@ -377,9 +547,9 @@ export default function UserDashboard({ setPage }) {
               {/* Neural Pattern Anomaly row */}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 16, marginBottom: 16 }}>
                 {[
-                  { key: "alzheimers", label: "Memory Deviation Index", icon: "🧩", color: PUR, desc: "Memory & recall pattern" },
-                  { key: "dementia",   label: "Executive Drift Score",  icon: "🌀", color: AMB, desc: "Attention & processing" },
-                  { key: "parkinsons", label: "Motor Anomaly Index",    icon: "🎯", color: BLU, desc: "Motor coordination" },
+                  { key: "alzheimers", label: "Memory Deviation Index", color: PUR, desc: "Memory & recall pattern" },
+                  { key: "dementia",   label: "Executive Drift Score",  color: AMB, desc: "Attention & processing" },
+                  { key: "parkinsons", label: "Motor Anomaly Index",    color: BLU, desc: "Motor coordination" },
                 ].map(d => {
                   const prob  = Math.round((last[`${d.key}_risk`] || 0) * 100);
                   const level = last.risk_levels?.[d.key] || "Low";
@@ -388,12 +558,9 @@ export default function UserDashboard({ setPage }) {
                   return (
                     <DarkCard key={d.key} style={{ padding: 22, border: `1px solid ${d.color}20` }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                          <span style={{ fontSize: 20 }}>{d.icon}</span>
-                          <div>
-                            <div style={{ fontWeight: 700, color: "#fff", fontSize: 13 }}>{d.label}</div>
-                            <div style={{ fontSize: 10, color: "#555", marginTop: 1 }}>{d.desc}</div>
-                          </div>
+                        <div>
+                          <div style={{ fontWeight: 700, color: "#fff", fontSize: 13 }}>{d.label}</div>
+                          <div style={{ fontSize: 10, color: "#555", marginTop: 1 }}>{d.desc}</div>
                         </div>
                         <span style={{ background: `${lvlColor}18`, color: lvlColor, padding: "3px 10px", borderRadius: 20, fontSize: 10, fontWeight: 700, border: `1px solid ${lvlColor}33` }}>{statusLabel}</span>
                       </div>
