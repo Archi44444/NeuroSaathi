@@ -61,7 +61,8 @@ export default function AssessmentHub({ setPage }) {
     finally { setLoading(false); }
   }
 
-  const allDone = completedCount >= 5;
+  const REQUIRED = 3;
+  const allDone = completedCount >= REQUIRED;
 
   return (
     <div>
@@ -75,7 +76,7 @@ export default function AssessmentHub({ setPage }) {
           Assessment <span style={{ color:LIME }}>Hub.</span>
         </h1>
         <p style={{ color:"#555", fontSize:14, fontWeight:500 }}>
-          Complete all 5 tests to generate your neural pattern analysis and cognitive domain performance scores.
+          Complete at least 3 out of 5 tests to generate your neural pattern analysis and cognitive domain performance scores.
         </p>
       </div>
 
@@ -83,7 +84,7 @@ export default function AssessmentHub({ setPage }) {
       <DarkCard style={{ padding:24, marginBottom:24 }} hover={false}>
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
           <span style={{ fontSize:13, color:"#888", fontWeight:700, letterSpacing:0.5 }}>Session Progress</span>
-          <span style={{ fontSize:13, fontWeight:900, color:completedCount===5 ? LIME : "#fff" }}>
+          <span style={{ fontSize:13, fontWeight:900, color:completedCount>=REQUIRED ? LIME : "#fff" }}>
             {completedCount} <span style={{ color:"#444", fontWeight:400 }}>/ 5</span>
           </span>
         </div>
@@ -96,7 +97,7 @@ export default function AssessmentHub({ setPage }) {
             boxShadow:`0 0 12px ${LIME}55`,
           }} />
         </div>
-        {completedCount === 5 && (
+        {completedCount >= REQUIRED && (
           <div style={{ marginTop:10, fontSize:12, color:LIME, fontWeight:700, letterSpacing:0.5 }}>
             ✓ All tests complete — ready to submit
           </div>
@@ -131,7 +132,7 @@ export default function AssessmentHub({ setPage }) {
         disabled={!allDone || loading}
         style={{ fontSize:15, padding:"13px 28px" }}
       >
-        {loading ? "⏳ Analyzing 18 features…" : !allDone ? `Complete ${5-completedCount} more test${5-completedCount>1?"s":""}` : "🧠 Submit & Get Neural Pattern Analysis →"}
+        {loading ? "⏳ Analyzing 18 features…" : !allDone ? `Complete ${REQUIRED-completedCount} more test${REQUIRED-completedCount>1?"s":""}` : "🧠 Submit & Get Neural Pattern Analysis →"}
       </Btn>
     </div>
   );

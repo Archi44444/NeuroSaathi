@@ -9,11 +9,18 @@ dist-ssr/
 .env.local
 .env.*.local
 !.env.example
-# Google Maps / Places API key files
-google-maps-key.json
-maps-api-key.txt
 # Firebase web config with real values
 firebase-config.js.local
+# Google Maps / Gemini API key files
+google-maps-key.json
+maps-api-key.txt
+gemini-key.txt
+# Any generic secrets file
+secrets.json
+secrets.yaml
+secrets.yml
+*.key
+*.pem
 
 # ── Logs ─────────────────────────────────────────────────────────────────────
 logs/
@@ -24,7 +31,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# ── IDE ───────────────────────────────────────────────────────────────────────
+# ── IDE / OS ──────────────────────────────────────────────────────────────────
 .vscode/*
 !.vscode/extensions.json
 .idea/

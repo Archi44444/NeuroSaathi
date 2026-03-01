@@ -41,7 +41,7 @@ firebase-admin-*.json
 # Google Cloud / Gemini
 google-credentials.json
 credentials.json
-# Any generic secrets file
+# Generic secrets
 secrets.json
 secrets.yaml
 secrets.yml
@@ -55,6 +55,7 @@ data/sessions.json
 data/results.json
 data/messages.json
 data/doctors.json
+data/game_results.json
 
 # ── ML model weights ─────────────────────────────────────────────────────────
 models/weights/*.onnx
@@ -67,7 +68,7 @@ models/weights/*.bin
 *.log
 logs/
 
-# ── IDE ───────────────────────────────────────────────────────────────────────
+# ── IDE / OS ──────────────────────────────────────────────────────────────────
 .vscode/
 .idea/
 *.swp
