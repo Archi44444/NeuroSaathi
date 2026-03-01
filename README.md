@@ -1,242 +1,145 @@
-# 🧠 MindSaathi
-### Early Cognitive Risk Assessment & Clinical Intelligence Platform  
+# 🧠 MindSaathi 
+### Early Cognitive Risk Assessment & Clinical Intelligence Platform
 
-MindSaathi is a full-stack, early cognitive risk assessment system designed to detect early indicators of neurological conditions such as:
+> ⚠️ **Disclaimer:** MindSaathi is an educational and assistive tool only. It is not a medical device and does not provide medical diagnosis. Always consult licensed healthcare professionals for clinical decisions.
+
+---
+
+## 📖 Overview
+
+MindSaathi is a full-stack early cognitive risk assessment system designed to detect early indicators of neurological conditions such as:
 
 - Mild Cognitive Impairment (MCI)
-- Alzheimer’s Disease
-- Parkinson’s-related cognitive decline
+- Alzheimer's Disease
+- Parkinson's-related cognitive decline
 - General executive dysfunction patterns
 
-The platform combines **neuropsychological tests**, a **normalized scoring engine**, a **machine learning layer**, a **progress tracking system**, and a **clinically guarded assistant (NeuroBot)** to create a safe, scalable, and intelligent cognitive assessment ecosystem.
+The platform combines:
+
+- 🧪 Neuropsychological test battery  
+- 🧮 Normalized ML scoring engine  
+- 📊 Longitudinal progress tracker  
+- 👩‍⚕️ Doctor–patient workflow  
+- 🤖 Guarded AI chatbot (NeuroBot) powered by Google Gemini with RAG  
 
 ---
 
-# 🚀 Core Objectives
+## 🚀 Live Links
 
-- Detect early cognitive risk using structured digital neuro-tests  
-- Normalize and aggregate test results into clinically meaningful scores  
-- Provide longitudinal progress tracking  
-- Enable doctor-patient structured workflows  
-- Integrate safe AI chat (RAG-based) for medical explanation  
-- Maintain clinical guardrails and non-diagnostic positioning  
-
----
-
-# 🏗️ System Architecture
-
-```
-Frontend (React + Vite + Tailwind)
-        │
-        ▼
-FastAPI Backend (Python)
-        │
-        ├── ML Engine
-        ├── Scoring Engine
-        ├── Progress Tracker
-        ├── RAG Service (NeuroBot)
-        └── Knowledge Guardrails
-```
+| Resource | URL |
+|----------|-----|
+| 🌐 Frontend (Deployed) | _Add your frontend deployed link here_ |
+| ⚙️ Backend (Deployed) | _Add your backend deployed link here_ |
+| 🎥 Demo Video | _Add your demo video link here_ |
 
 ---
 
-# 🖥️ Frontend (React + Vite + Tailwind)
+## 🏗️ System Architecture
 
-Located in:  
 ```
-frontend/
+Frontend (React + Vite + Tailwind CSS)
+          │
+          ▼
+  FastAPI Backend (Python)
+          │
+          ├── ML Scoring Engine
+          ├── Clinical Config (guardrails, thresholds)
+          ├── Progress Tracker (longitudinal analysis)
+          ├── RAG Service → NeuroBot (Gemini AI)
+          └── Firebase (Auth + Firestore)
 ```
-
-### 🔹 Tech Stack
-
-- React (Vite)
-- Tailwind CSS
-- Firebase Authentication
-- Context API for state management
-- Modular test components
 
 ---
 
-## 🧪 Cognitive Test Modules
-
-Each test simulates validated neuropsychological patterns:
+## 🧪 Cognitive Test Battery
 
 | Test | Cognitive Domain |
-|------|------------------|
+|------|-----------------|
 | Memory Test | Episodic memory |
 | Digit Span | Working memory |
-| Stroop Test | Executive control |
+| Stroop Test | Executive control / inhibition |
 | Reaction Test | Processing speed |
-| Speech Test | Language patterns |
+| Speech Test | Language & fluency patterns |
 | Fluency Test | Verbal fluency |
 | Tap Test | Motor coordination |
 
-Each component:
-- Collects structured metrics
-- Sends normalized data to backend
-- Contributes to aggregate cognitive score
+Each test:
+
+- Collects structured performance metrics  
+- Sends normalized data to backend API  
+- Contributes to an aggregate **Cognitive Risk Index**
 
 ---
 
-## 👤 User Flow
+## 👤 User Flows
 
-1. User registers/login (Firebase Auth)
-2. Profile setup
-3. Takes cognitive tests
-4. Backend processes and normalizes scores
-5. Risk Dashboard shows:
-   - Cognitive risk level
-   - Domain-wise breakdown
-   - Trend graph
-6. User can:
-   - View progress
-   - Select doctor (1 doctor → max 10 patients)
-   - Message doctor
-   - Chat with NeuroBot
+### 🧑‍💻 Patient
+
+1. Register / Login via Firebase Auth  
+2. Complete profile setup  
+3. Take cognitive test battery  
+4. View Risk Dashboard (overall score + domain breakdown + trends)  
+5. Select a doctor (max 10 patients per doctor)  
+6. Securely message doctor  
+7. Chat with NeuroBot for explanations  
+8. Play cognitive training games  
+9. Track longitudinal progress  
 
 ---
 
-## 👩‍⚕️ Doctor Workflow
+### 👩‍⚕️ Doctor
 
-- Doctor registration
-- Dashboard view of assigned patients
-- Neural pattern anomaly visualization
-- Patient-specific score history
-- Messaging system
-
----
-
-# ⚙️ Backend (FastAPI)
-
-Located in:
-```
-backend/
-```
+1. Register as doctor  
+2. View assigned patients dashboard  
+3. Analyze score history and anomaly indicators  
+4. Communicate via messaging system  
+5. Manage educational content  
 
 ---
 
-## 🔹 Core Components
+## 🤖 NeuroBot 
 
-### 1️⃣ ML Engine (`core/ml_engine.py`)
-
-Responsible for:
-- Risk probability modeling
-- Feature aggregation
-- Weight assignment
-- Score interpretation
-
-Uses:
-- Structured test features
-- Weighted domain scores
-- Risk categorization logic
-
----
-
-### 2️⃣ Clinical Config (`core/clinical_config.py`)
-
-Defines:
-- Domain weightings
-- Risk thresholds
-- Safe interpretation ranges
-- Clinical guard parameters
-
-Ensures:
-- Non-diagnostic positioning
-- Safe output framing
-
----
-
-### 3️⃣ Scoring & Normalization Logic
-
-Each test score is:
-
-```
-Raw Score → Normalized Score → Domain Score → Weighted Aggregate Score
-```
-
-Normalization:
-- Age-adjusted (if configured)
-- Time-adjusted for reaction tasks
-- Error-weighted for executive tasks
-
-Final Output:
-- Low Risk
-- Moderate Risk
-- Elevated Risk
-
----
-
-### 4️⃣ Progress Tracker (`core/progress_tracker.py`)
-
-Tracks:
-- Historical test attempts
-- Trend analysis
-- Domain-wise progression
-- Cognitive stability patterns
-
-Enables:
-- Longitudinal monitoring
-- Doctor comparison dashboard
-- Mini-chart visualizations
-
----
-
-### 5️⃣ RAG Service (`rag_service.py`)
-
-NeuroBot uses:
-- Retrieval-Augmented Generation
-- Knowledge base indexing
-- Guardrail filtering
-
-Workflow:
-```
-User Query
-   ↓
-Guardrail Filtering
-   ↓
-Knowledge Retrieval
-   ↓
-LLM Explanation
-   ↓
-Safe Response Formatting
-```
 
 NeuroBot:
-- Explains difficult medical terms
-- Clarifies score meanings
-- Avoids diagnosis claims
-- Redirects emergency cases safely
+
+- Explains medical terms in plain language  
+- Clarifies cognitive score meaning  
+- Never diagnoses or prescribes  
+- Redirects emergency language safely  
+- Falls back to static KB if API key absent  
 
 ---
 
-### 6️⃣ Guardrails (`knowledge_base/guardrails.py`)
-
-Prevents:
-- Diagnostic statements
-- Medication recommendations
-- Emergency mismanagement
-- High-risk advice
-
-Ensures:
-- Medical safety compliance
-- Ethical AI usage
-
----
-
-# 🔐 Authentication
-
-Handled via Firebase:
-
-- Secure login
-- Token-based session validation
-- Role-based UI (Patient / Doctor)
-
----
-
-# 📁 Project Structure
+## 🏆 Risk Scoring Logic
 
 ```
-MindSaathi/
+Raw Score
+   ↓
+Age-Adjusted Normalization
+   ↓
+Domain Score × Clinical Weight
+   ↓
+Aggregate Risk Index
+```
+
+| Risk Score | Category |
+|------------|----------|
+| 0 – 30 | 🟢 Low Risk |
+| 31 – 60 | 🟡 Moderate Risk |
+| 61 – 100 | 🔴 Elevated Risk |
+
+Thresholds configurable in:
+
+```
+backend/core/clinical_config.py
+```
+
+---
+
+## 🗂️ Project Structure
+
+```
+NeuroSaathi/
 │
 ├── backend/
 │   ├── main.py
@@ -251,180 +154,152 @@ MindSaathi/
 │   │   ├── auth.py
 │   │   ├── chat.py
 │   │   ├── content.py
+│   │   ├── games.py
 │   │   └── messages.py
-│   ├── models/
-│   │   └── schemas.py
+│   ├── models/schemas.py
 │   ├── knowledge_base/
-│   ├── services/
-│   └── data/
+│   │   ├── index.py
+│   │   └── guardrails.py
+│   ├── services/ai_service.py
+│   ├── data/
+│   └── requirements.txt
 │
 ├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   ├── context/
-│   │   ├── services/
-│   │   └── utils/
+│   └── src/
+│       ├── pages/
+│       ├── components/
+│       ├── context/
+│       ├── services/
+│       ├── utils/
+│       └── firebase.js
 │
-└── README.md
+├── SETUP.md
+├── README.md
+└── LICENSE
 ```
 
 ---
 
-# 🧠 Risk Dashboard Logic
+## ⚙️ Local Setup
 
-The dashboard displays:
+### 🔹 Prerequisites
 
-- Overall Cognitive Score
-- Domain-wise breakdown
-- Neural anomaly indicators
-- Risk category badge
-- Trend chart
-
-Behind the scenes:
-
-```
-Domain Score_i × Clinical Weight_i
-                ↓
-        Aggregated Risk Index
-                ↓
-     Categorized Risk Output
-```
+- Python 3.10+
+- Node.js 18+
+- Firebase project with Firestore enabled
+- Google Gemini API key (optional but recommended)
 
 ---
 
-# 💬 Messaging System
-
-- Patient ↔ Doctor communication
-- Secure routing via backend
-- Role-based message access
-
----
-
-# 📊 Example Risk Interpretation
-
-| Risk Score | Category |
-|------------|----------|
-| 0–30 | Low Risk |
-| 31–60 | Moderate Risk |
-| 61–100 | Elevated Risk |
-
-*(Thresholds configurable in clinical_config.py)*
-
----
-
-# 🛠️ Installation Guide
-
-## Backend Setup
+### 🔹 Backend Setup
 
 ```bash
 cd backend
+cp .env.example .env
+# Add GEMINI_API_KEY in .env
 python -m venv venv
-source venv/bin/activate   # or venv\Scripts\activate on Windows
+source venv/bin/activate       # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-uvicorn main:app --reload
+uvicorn main:app --reload --port 8000
+```
+
+Backend runs at:
+
+```
+http://localhost:8000
+```
+
+Swagger docs:
+
+```
+http://localhost:8000/docs
 ```
 
 ---
 
-## Frontend Setup
+### 🔹 Frontend Setup
 
 ```bash
 cd frontend
+cp .env.example .env
+# Add Firebase config + backend URL
 npm install
 npm run dev
 ```
 
----
-
-## Environment Variables
-
-### Backend `.env`
+Frontend runs at:
 
 ```
-OPENAI_API_KEY=
-DATABASE_URL=
-FIREBASE_SECRET=
-```
-
-### Frontend `.env`
-
-```
-VITE_FIREBASE_API_KEY=
-VITE_BACKEND_URL=
+http://localhost:5173
 ```
 
 ---
 
-# 🛡️ Safety & Compliance
+## 🔐 Firebase Setup
 
-MindSaathi:
+1. Create project in Firebase Console  
+2. Enable Firestore Database  
+3. Add Web App and copy config to `.env`  
+4. Apply Firestore rules:
 
-- Does NOT provide diagnosis
-- Does NOT prescribe treatment
-- Redirects emergency language
-- Encourages professional consultation
-- Uses guarded medical explanations
-
----
-
-# 🧩 Hackathon-Winning Elements
-
-- Real cognitive science integration
-- Multi-test digital neuro-battery
-- Risk normalization logic
-- ML scoring engine
-- Longitudinal tracking
-- Doctor-patient workflow
-- Guarded RAG chatbot
-- Clean UI/UX with domain separation
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /doctors/{doctorId} {
+      allow read, write: if true;
+    }
+    match /results/{resultId} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
+```
 
 ---
 
-# 📈 Future Improvements
+## 🛠️ Tech Stack
 
-- Real ML model training with dataset
-- Speech-to-text cognitive biomarkers
-- EEG integration simulation
-- Time-series anomaly detection
-- Graph-based patient risk clustering
-- Federated learning integration
-- Explainable AI (SHAP / LIME)
-- Deployment on cloud with CI/CD
-
----
-
-# 🎯 Vision
-
-MindSaathi aims to become:
-
-> A scalable, ethical, AI-assisted early cognitive screening system  
-> bridging digital neuropsychology and modern machine intelligence.
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React, Vite, Tailwind CSS |
+| Auth | Firebase Authentication |
+| Database | Firebase Firestore + JSON fallback |
+| Backend | FastAPI (Python) |
+| AI | Google Gemini |
+| AI Pattern | RAG |
+| ML | Custom weighted scoring (NumPy) |
+| Speech | Adaptive Voice Activity Detection |
 
 ---
 
-# 📜 License
+## 🛡️ Safety & Compliance
 
-See `frontend/LICENSE`
-
----
-
-# ⚠️ Disclaimer
-
-MindSaathi is an **educational and assistive tool only**.  
-It is not a medical device and does not provide medical diagnosis.
-
-Users are strongly encouraged to consult licensed healthcare professionals for clinical decisions.
+- ❌ No medical diagnosis  
+- ❌ No medication recommendation  
+- ❌ No emergency mismanagement  
+- ✅ Encourages professional consultation  
+- ✅ Guarded AI response framing  
+- ✅ Crisis language redirection  
 
 ---
 
-# 🌟 Final Thought
+## 📈 Roadmap
 
-MindSaathi is not just a project.  
-It is a demonstration of:
+- Real ML model training on clinical datasets  
+- Speech-to-text biomarker extraction  
+- EEG integration simulation  
+- Time-series anomaly detection  
+- Explainable AI (SHAP / LIME)  
+- CI/CD cloud deployment  
+- Federated learning  
 
-- Core CS engineering
-- Applied ML reasoning
-- Ethical AI design
-- Healthcare-tech system architecture
+---
 
+## 📜 License
+
+MIT License — see `LICENSE`.
+
+---
+
+**MindSaathi — bridging digital neuropsychology and modern machine intelligence, ethically.**
