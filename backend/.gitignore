@@ -1,4 +1,4 @@
-# Python
+# ── Python ────────────────────────────────────────────────────────────────────
 __pycache__/
 *.py[cod]
 *$py.class
@@ -23,23 +23,54 @@ share/python-wheels/
 *.egg
 MANIFEST
 
-# Virtual environments
+# ── Virtual environments ──────────────────────────────────────────────────────
 venv/
 ENV/
 env/
+.venv/
 
-# Environment variables (NEVER commit actual .env with secrets!)
+# ── Secrets & API Keys (NEVER commit!) ───────────────────────────────────────
 .env
 .env.local
 .env.*.local
+!.env.example
+# Firebase Admin SDK service account
+*-firebase-adminsdk-*.json
+serviceAccountKey.json
+firebase-admin-*.json
+# Google Cloud / Gemini
+google-credentials.json
+credentials.json
+# Any generic secrets file
+secrets.json
+secrets.yaml
+secrets.yml
+*.key
+*.pem
+*.p12
 
-# IDE
+# ── Application data ─────────────────────────────────────────────────────────
+data/users.json
+data/sessions.json
+data/results.json
+data/messages.json
+data/doctors.json
+
+# ── ML model weights ─────────────────────────────────────────────────────────
+models/weights/*.onnx
+models/weights/*.pkl
+models/weights/*.h5
+models/weights/*.pt
+models/weights/*.bin
+
+# ── Logs ─────────────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── IDE ───────────────────────────────────────────────────────────────────────
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 .DS_Store
-
-# Logs
-*.log

@@ -1,32 +1,81 @@
-# Python
+# ── Python ────────────────────────────────────────────────────────────────────
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
+*$py.class
+*.so
 .Python
-*.egg-info/
-dist/
 build/
-.venv/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ── Virtual environments ──────────────────────────────────────────────────────
 venv/
+ENV/
 env/
+.venv/
 
-# Environment
+# ── Environment & Secrets (NEVER commit actual keys!) ─────────────────────────
 .env
-.env.*
+.env.local
+.env.*.local
 !.env.example
+# Firebase service account keys
+*-firebase-adminsdk-*.json
+serviceAccountKey.json
+firebase-admin-*.json
+# Google / Gemini API keys
+google-credentials.json
+credentials.json
 
-# Data (don't commit user data)
+# ── Node / Frontend ───────────────────────────────────────────────────────────
+node_modules/
+frontend/dist/
+frontend/dist-ssr/
+*.local
+
+# ── Application data (user-generated, not source) ────────────────────────────
 backend/data/users.json
 backend/data/sessions.json
 backend/data/results.json
 backend/data/messages.json
+backend/data/doctors.json
 
-# Node
-node_modules/
-frontend/dist/
+# ── ML model weights (large binary files) ────────────────────────────────────
+backend/models/weights/*.onnx
+backend/models/weights/*.pkl
+backend/models/weights/*.h5
+backend/models/weights/*.pt
+backend/models/weights/*.bin
 
-# IDE
+# ── Logs ─────────────────────────────────────────────────────────────────────
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ── IDE ───────────────────────────────────────────────────────────────────────
+.vscode/*
+!.vscode/extensions.json
 .idea/
-.vscode/
 *.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
