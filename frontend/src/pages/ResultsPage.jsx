@@ -1,6 +1,4 @@
 import { useState, useEffect } from "react";
-import { useGames } from "../context/GamesContext";
-import { GAMES, CATEGORY_STYLE } from "../utils/gamesCatalog";
 import { T } from "../utils/theme";
 import { DarkCard, Btn, MiniChart } from "../components/RiskDashboard";
 import { useAssessment } from "../context/AssessmentContext";
@@ -502,8 +500,6 @@ export default function ResultsPage({ setPage }) {
   const [expandedDomain, setExpandedDomain] = useState(null);
   const [showRaw, setShowRaw] = useState(false);
   const [historyLoaded, setHistoryLoaded] = useState(false);
-  const [activeTab, setActiveTab] = useState("assessment");
-  const { resultsByGame } = useGames();
 
   // Load history on mount so we can show latest result even after reload
   useEffect(() => {
@@ -559,136 +555,8 @@ export default function ResultsPage({ setPage }) {
 
   const radarData = Object.fromEntries(domainScores.map(d => [d.label, d.score]));
 
-  const LIME_GAMES = "#C8F135";
-
-  // ── Games Results section ──
-  const playedGames = GAMES.map(g => {
-    const results = resultsByGame[g.id] || [];
-    const latest = results.length ? results[results.length - 1] : null;
-    return { game: g, played: results.length > 0, latest };
-  });
-  const playedCount = playedGames.filter(r => r.played).length;
-
-  function gameTone(score) {
-    if (score >= 80) return "#86efac";
-    if (score >= 60) return "#facc15";
-    return "#f87171";
-  }
-
   return (
     <div style={{ fontFamily: "'DM Sans', sans-serif" }}>
-
-      {/* ── Tab Switcher ── */}
-      <div style={{ display: "flex", gap: 6, marginBottom: 28, background: "rgba(255,255,255,0.04)", borderRadius: 14, padding: 5, border: "1px solid rgba(255,255,255,0.07)", width: "fit-content" }}>
-        {[
-          { id: "assessment", label: "🧠 Assessment Results" },
-          { id: "games", label: "🎮 Games Results" },
-        ].map(tab => (
-          <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{
-            padding: "9px 20px", borderRadius: 10, border: "none", cursor: "pointer",
-            fontFamily: "'DM Sans',sans-serif", fontSize: 13, fontWeight: 600,
-            background: activeTab === tab.id ? "rgba(255,255,255,0.1)" : "transparent",
-            color: activeTab === tab.id ? "#f0ece3" : "rgba(240,236,227,0.4)",
-            borderBottom: activeTab === tab.id ? "2px solid #E84040" : "2px solid transparent",
-            transition: "all 0.15s",
-          }}>
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* ── GAMES RESULTS SECTION ── */}
-      {activeTab === "games" && (
-        <div>
-          <div style={{ marginBottom: 24 }}>
-            <h1 style={{ fontFamily: "'Instrument Serif',serif", fontSize: 30, color: "#f0ece3", letterSpacing: -1, marginBottom: 8, fontWeight: 400 }}>
-              Games Performance
-            </h1>
-            <p style={{ color: "rgba(240,236,227,0.45)", fontSize: 14, lineHeight: 1.6 }}>
-              Your results from the cognitive training games — tracked separately from clinical assessment scores.
-            </p>
-          </div>
-
-          {/* Games progress summary */}
-          <div style={{ background: "#141414", borderRadius: 18, padding: "22px 26px", marginBottom: 20, border: "1px solid rgba(255,255,255,0.07)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div>
-              <div style={{ fontSize: 11, color: "rgba(240,236,227,0.3)", letterSpacing: 1, textTransform: "uppercase", marginBottom: 6 }}>Games Completed</div>
-              <div style={{ fontFamily: "'Instrument Serif',serif", fontSize: 40, color: playedCount >= 5 ? LIME_GAMES : "#f0ece3", lineHeight: 1 }}>
-                {playedCount}<span style={{ fontSize: 18, color: "rgba(240,236,227,0.3)", marginLeft: 4 }}>/9</span>
-              </div>
-              {playedCount >= 5
-                ? <div style={{ marginTop: 6, fontSize: 12, color: LIME_GAMES, fontWeight: 700 }}>✓ Minimum complete — full analysis available</div>
-                : <div style={{ marginTop: 6, fontSize: 12, color: "rgba(240,236,227,0.4)" }}>Complete {5 - playedCount} more game{5 - playedCount !== 1 ? "s" : ""} for full analysis</div>
-              }
-            </div>
-            {playedCount >= 5 && (
-              <div style={{ textAlign: "right" }}>
-                <div style={{ fontSize: 11, color: "rgba(240,236,227,0.3)", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.8 }}>Avg Score</div>
-                <div style={{ fontFamily: "'Instrument Serif',serif", fontSize: 36, color: LIME_GAMES }}>
-                  {Math.round(playedGames.filter(r => r.latest).reduce((s, r) => s + (r.latest?.score || 0), 0) / Math.max(1, playedGames.filter(r => r.latest).length))}%
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Games by category */}
-          {Object.entries(
-            playedGames.reduce((acc, { game, played, latest }) => {
-              if (!acc[game.category]) acc[game.category] = [];
-              acc[game.category].push({ game, played, latest });
-              return acc;
-            }, {})
-          ).map(([cat, items]) => {
-            const catStyle = CATEGORY_STYLE[cat] || { color: LIME_GAMES, bg: `${LIME_GAMES}12` };
-            return (
-              <div key={cat} style={{ marginBottom: 18 }}>
-                <div style={{ fontSize: 11, color: catStyle.color, textTransform: "uppercase", letterSpacing: 1.1, fontWeight: 700, marginBottom: 10 }}>{cat}</div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {items.map(({ game, played, latest }) => (
-                    <div key={game.id} style={{
-                      background: "#141414", borderRadius: 14, padding: "16px 20px",
-                      border: `1px solid ${played ? catStyle.color + "20" : "rgba(255,255,255,0.06)"}`,
-                      display: "flex", justifyContent: "space-between", alignItems: "center",
-                    }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                        <div style={{ width: 40, height: 40, borderRadius: 10, background: catStyle.bg, border: `1px solid ${catStyle.color}44`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>
-                          {game.icon}
-                        </div>
-                        <div>
-                          <div style={{ color: "#f0ece3", fontWeight: 700, fontSize: 14, marginBottom: 4 }}>{game.title}</div>
-                          <div style={{ fontSize: 11, color: "rgba(240,236,227,0.35)" }}>{game.measures}</div>
-                        </div>
-                      </div>
-                      {played && latest ? (
-                        <div style={{ textAlign: "right", flexShrink: 0 }}>
-                          <div style={{ fontFamily: "'Instrument Serif',serif", fontSize: 26, color: gameTone(latest.score), lineHeight: 1 }}>{latest.score}%</div>
-                          <div style={{ fontSize: 11, color: "rgba(240,236,227,0.35)", marginTop: 3 }}>{latest.correct}/{latest.total} correct · {latest.durationSec}s</div>
-                        </div>
-                      ) : (
-                        <button onClick={() => setPage(game.id)} style={{
-                          padding: "7px 14px", borderRadius: 8, background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
-                          color: "rgba(240,236,227,0.5)", fontWeight: 600, fontSize: 12, cursor: "pointer", fontFamily: "'DM Sans',sans-serif",
-                        }}>Play →</button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-
-          {playedCount < 5 && (
-            <div style={{ padding: "14px 20px", background: "rgba(245,158,11,0.07)", border: "1px solid rgba(245,158,11,0.18)", borderRadius: 14, marginTop: 12 }}>
-              <span style={{ color: "#f59e0b", fontSize: 13, fontWeight: 500 }}>
-                ⚠️ Play at least 5 games to unlock comprehensive cognitive training analysis and pattern insights.
-              </span>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* ── ASSESSMENT RESULTS (existing content, shown when activeTab === "assessment") ── */}
-      {activeTab === "assessment" && <div>
 
       {/* ── Header ── */}
       <div style={{ marginBottom: 32 }}>
@@ -869,8 +737,6 @@ export default function ResultsPage({ setPage }) {
         <Btn variant="ghost" onClick={() => { reset(); setPage("assessments"); }}>🔄 Retake Assessment</Btn>
         <Btn variant="ghost" onClick={() => downloadReport(domainScores, wellness, profile)}>📥 Download Summary</Btn>
       </div>
-
-      </div>} {/* end assessment tab */}
 
     </div>
   );

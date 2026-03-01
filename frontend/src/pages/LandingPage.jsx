@@ -118,11 +118,7 @@ function NavPortal({ setView, open, setOpen }) {
     }}>
       {/* Logo */}
       <div style={{ display:"flex",alignItems:"center",gap:10 }}>
-        <img
-          src="/logo-brain.svg"
-          alt="MindSaathi logo"
-          style={{ width:34, height:34, borderRadius:10, display:"block", boxShadow:`0 0 18px ${C.lime}44` }}
-        />
+        <div style={{ width:34,height:34,borderRadius:10,background:`linear-gradient(135deg,${C.lime},${C.limeDim})`,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:900,fontSize:15,color:"#080808",boxShadow:`0 0 18px ${C.lime}44` }}>N</div>
         <span style={{ fontWeight:900,fontSize:18,letterSpacing:"-0.5px",color:C.white }}>MindSaathi</span>
       </div>
 
@@ -731,11 +727,7 @@ export default function LandingPage({ setView }) {
             display:"flex",justifyContent:"space-between",alignItems:"center",gap:20,flexWrap:"wrap",
           }}>
             <div style={{ display:"flex",alignItems:"center",gap:10 }}>
-              <img
-                src="/logo-brain.svg"
-                alt="MindSaathi logo"
-                style={{ width:32, height:32, borderRadius:9, display:"block" }}
-              />
+              <div style={{ width:32,height:32,borderRadius:9,background:`linear-gradient(135deg,${C.lime},${C.limeDim})`,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:900,fontSize:14,color:"#080808" }}>N</div>
               <span style={{ fontWeight:900,fontSize:17,letterSpacing:"-0.5px" }}>MindSaathi</span>
             </div>
 
